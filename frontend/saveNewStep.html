@@ -1,0 +1,129 @@
+<script>
+  let stepNewObject = [];
+  let currentEditRowStepNew = null;
+
+  function saveNewStep() {
+    let lastCodeStep = getMaxStepCodeFromTable();
+
+    let newStepObject = {
+      mySQLFormId: "",
+      title: document.getElementById("title-step-new").value,
+      description: document.getElementById("step-description").value,
+      stepCode: lastCodeStep,
+      type: document.getElementById("type-step-new").value,
+      action: document.getElementById("action-step-new").value,
+      question: document.getElementById("question-step-new").value,
+      answerType: document.getElementById("answer-type-step-new").value,
+      answer1: document.getElementById("answer-1-step-new").value,
+      answer2: document.getElementById("answer-2-step-new").value,
+      answer3: document.getElementById("answer-3-step-new").value,
+      answer4: document.getElementById("answer-4-step-new").value,
+      photo1: "",
+      photo2: "",
+      photo3: "",
+      video1: "",
+      video2: "",
+      video3: "",
+      status: "",
+      checked: "",
+      background: "",
+    };
+
+    const exitstingStepIndex = stepNewObject.findIndex(
+      (step) => step.title === newStepObject.title
+    );
+
+    if (exitstingStepIndex > -1) {
+      stepNewObject[exitstingStepIndex] = newStepObject;
+    } else {
+      stepNewObject.push(newStepObject);
+    }
+
+    console.log(stepNewObject);
+
+    // add step in the table
+    const tableBody = document.getElementById("table-body-steps");
+    const row = document.createElement("tr");
+    // flags to validate if new step
+    row.dataset.stepCodeOriginal = newStepObject.stepCode;
+    //row.dataset.statusCode = "CodeOriginal";
+    row.dataset.statusNew = "newStep";
+
+    //Object save new step
+    const rowStepCode = createTableCell("10%", newStepObject.stepCode);
+    const rowStepTitle = createTableCell("30%", newStepObject.title);
+    const rowFormActionsCell = createTableCell("15%");
+
+    const maxDescriptionLength = 80;
+    const truncatedDescription =
+      newStepObject.description.slice(0, maxDescriptionLength) + "...";
+    const rowStepDescription = createTableCell("45%", truncatedDescription);
+    const rowStepActions = createTableCell("15%");
+
+    createAndAppendButtons(
+      rowStepDescription,
+      newStepObject.stepDescriptionValue,
+      truncatedDescription,
+      rowFormActionsCell,
+      "btn-select-step",
+      "btn-edit-step-new",
+      "btn-delete-step"
+    );
+
+    [rowStepCode, rowStepTitle, rowStepDescription, rowFormActionsCell].forEach(
+      (cell) => {
+        row.appendChild(cell);
+      }
+    );
+
+    tableBody.appendChild(row);
+
+    initEditNewStep();
+    //viewStepNew();
+    //editStepNew();
+    dragDropTable();
+    resetFormStep();
+
+    const modal = document.getElementById("new-form-step");
+    const modalIntance = bootstrap.Modal.getInstance(modal);
+    modalIntance.hide();
+  }
+
+  function initEditNewStep() {
+    const buttonEditStepNew = document.querySelectorAll(".btn-edit-step-new");
+    buttonEditStepNew.forEach((button) => {
+      button.removeEventListener("click", handleEditStepNew);
+      button.addEventListener("click", handleEditStepNew);
+    });
+  }
+
+  function handleEditStepNew(event) {
+    const button = event.currentTarget;
+    openModalEditStep();
+
+    const row = button.closest("tr");
+
+    const mapping = {
+      "title-step-edit": steps.stepTitle,
+      "step-description-edit": steps.descriptions,
+      "type-step-edit": steps.type,
+      "action-step-edit": steps.action,
+      "question-step-edit": steps.question,
+      "answer-type-step-edit": steps.answerType,
+      "answer-1-step-edit": steps.answer1,
+      "answer-2-step-edit": steps.answer2,
+      "answer-3-step-edit": steps.answer3,
+      "answer-4-step-edit": steps.answer4,
+    };
+
+    const stepCode = row.dataset.stepCodeOriginal;
+    const stepIndex = stepNewObject.findIndex(
+      (step) => step.stepCode === stepCode
+    );
+    const step = stepNewObject[stepIndex];
+
+    const modal = document.getElementById("new-form-step");
+    const modalIntance = bootstrap.Modal.getInstance(modal);
+    modalIntance.show();
+  }
+</script>

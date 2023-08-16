@@ -1,0 +1,90 @@
+<script>
+  function handleEditButtonClickFormEdit(event) {
+    openModalEditForm();
+    createOptionsForSelects(arrayTitleDescription, "edit-departament-forms");
+
+    const button = event.currentTarget;
+    const form = document.getElementById("edit-Form");
+    const row = button.closest("tr");
+    const dataRow = row.querySelectorAll("td");
+    const dataDepartament = dataRow[0].textContent;
+    const dataColumnId = dataRow[1].textContent;
+    const dataColumnDescription = dataRow[2].textContent;
+    const formId = dataRow[3].dataset.id;
+
+    let selectedDepartament = [];
+
+    objectForms.forEach((forms) => {
+      if (dataColumnId === forms.formId) {
+        document.getElementById("edit-title-forms").value = dataColumnId;
+        document.getElementById("edit-description-forms").value =
+          forms.formDescription;
+        selectedDepartament.push(forms.formDepartmentTitle);
+      }
+    });
+
+    arrayTitleDescription.forEach((departament, index) => {
+      if (selectedDepartament[0] === departament) {
+        document.getElementById("edit-departament-forms").value =
+          document.getElementById("edit-departament-forms").selectedIndex =
+            index;
+      }
+    });
+
+    const buttonAddFormModal = document.getElementById("save-form-edit");
+    buttonAddFormModal.removeEventListener("click", saveEditForm); // Remover el listener previo
+    buttonAddFormModal.addEventListener("click", saveEditForm); // Agregar de nuevo el listener
+  }
+
+  function initEventButtonEdit() {
+    const editButtons = document.querySelectorAll(".btn-edit");
+    editButtons.forEach((button) => {
+      button.removeEventListener("click", handleEditButtonClickFormEdit);
+      button.addEventListener("click", handleEditButtonClickFormEdit);
+    });
+  }
+
+  // La función saveEditForm sigue siendo la misma
+
+  function saveEditForm() {
+    const idDepartament = document.getElementById("edit-departament-forms");
+    const selectedIndex = idDepartament.selectedIndex;
+    const selectedOption = idDepartament.options[selectedIndex].text;
+
+    const title = document.getElementById("edit-title-forms");
+    const titleForm = title.value;
+
+    const description = document.getElementById("edit-description-forms");
+    const descriptionForm = description.value;
+
+    let departamentIdMysql;
+    let formId;
+
+    objectForms.forEach((forms) => {
+      if (
+        forms.formDepartmentTitle === selectedOption &&
+        forms.formId === titleForm
+      ) {
+        departamentIdMysql = forms.formDepartmentID;
+        formId = forms.mySQLId;
+      }
+    });
+
+    const editForm = {
+      formId: formId,
+      formDepartmentId: departamentIdMysql,
+      description: descriptionForm,
+      title: titleForm,
+    };
+
+    console.log(editForm);
+
+    google.script.run.withSuccessHandler().updateForm(editForm);
+
+    const modal = document.getElementById("edit-form-modal");
+    const modalIntance = bootstrap.Modal.getInstance(modal);
+    modalIntance.hide();
+
+    setTimeout(loadForms(), 3000);
+  }
+</script>

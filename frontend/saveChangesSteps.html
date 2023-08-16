@@ -1,0 +1,25 @@
+<script>
+  document.addEventListener("click", function (event) {
+    if (event.target.matches("#save-forms-allStep")) {
+      swalWithBootstrapButtons
+        .fire({
+          title: "Are you sure?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "Yes, saved changes!",
+          cancelButtonText: "No, cancel!",
+        })
+        .then((result) => {
+          if (result.isConfirmed) {
+            if (stepsEditObject.length > 0) {
+              google.script.run
+                .withSuccessHandler()
+                .updateSteps(stepsEditObject);
+            }
+
+            setTimeout(loadForms(), 3000);
+          }
+        });
+    }
+  });
+</script>

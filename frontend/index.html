@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bootstrap demo</title>
+    <!-- styles file -->
+    <?!= includeFile ('frontend/style'); ?>
+    <style>
+      .preloader-wrapper {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #d9ecf5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.5s ease;
+        z-index: 9999;
+        opacity: 50;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- preloader -->
+    <div class="preloader-wrapper" id="loader">
+      <div
+        class="spinner-grow text-primary"
+        role="status"
+        style="width: 5rem; height: 5rem">
+        <span class="visually-hidden"></span>
+      </div>
+    </div>
+
+    <div class="container-fluid p-4">
+      <div class="row shadow g-3">
+        <!-- Tittle and fields searchs -->
+        <div class="col-sm-12 col-md-12 col-lg-12">
+          <h1 class="text-center" style="font-weight: bold">LDMG FORMS</h1>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-12 mx-auto mb-2">
+          <button class="btn btn-outline-primary" id="add-forms">
+            <i class="fa-solid fa-plus"></i> Add Form
+          </button>
+          <button class="btn btn-outline-warning" id="update-data">
+            <i class="fa-solid fa-rotate"></i> Refresh
+          </button>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-4">
+          <div class="input-group">
+            <span class="input-group-text"
+              ><i class="fa-solid fa-search"></i
+            ></span>
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="input"
+                placeholder="Search for department id"
+                id="input-search-departament-id" /><label
+                id="label-search-id"
+                for="input-search-departament-id"
+                >Search for department id</label
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-4">
+          <div class="input-group">
+            <span class="input-group-text"
+              ><i class="fa-solid fa-search"></i
+            ></span>
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="input"
+                placeholder="Search for Id"
+                id="input-search-id" /><label
+                id="label-search-id"
+                for="input-search-id"
+                >Search for id</label
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-4">
+          <div class="input-group">
+            <span class="input-group-text"
+              ><i class="fa-solid fa-search"></i
+            ></span>
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="input"
+                placeholder="Search for description"
+                id="input-search-description" /><label
+                id="label-search-description"
+                for="input-search-description"
+                >Search for description</label
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Title and table list form -->
+        <div class="col-sm-12 col-md-12 col-lg-12">
+          <h2 class="text-center" style="font-weight: bold">Forms List</h2>
+        </div>
+
+        <div class="container">
+          <div class="row">
+            <div class="table-responsive mt-2 mb-4" style="max-height: 550px">
+              <table
+                class="table table-hover nowrap mt-1"
+                style="max-width: 100%"
+                id="table-form">
+                <thead>
+                  <tr>
+                    <th style="width: 25%">Departament id</th>
+                    <th style="width: 25%">Form id</th>
+                    <th style="width: 35%">Form description</th>
+                    <th style="width: 15%">Form actions</th>
+                  </tr>
+                </thead>
+                <tbody
+                  class="table-group-divider"
+                  id="table-body-forms"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- <div class="container">
+          <div class="row">
+            <div class="table-responsive mt-2 mb-4">
+              <table
+                class="table table-hover nowrap mt-1"
+                style="width: max-content; min-width: 100%"
+                id="table-form">
+                <thead>
+                  <tr>
+                    <th style="width: 70px">deptID</th>
+                    <th style="width: 220px">Form id</th>
+                    <th style="width: 350px">Form description</th>
+                    <th style="width: 180px">Form actions</th>
+                  </tr>
+                </thead>
+                <tbody
+                  class="table-group-divider"
+                  id="table-body-forms"></tbody>
+              </table>
+            </div>
+          </div>
+        </div> -->
+      </div>
+    </div>
+
+    <!-- Bootstrap 5 -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+      crossorigin="anonymous"></script>
+
+    <!-- Sweet alerts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.9/dist/sweetalert2.all.min.js"></script>
+  </body>
+
+  <!-- scripts file -->
+  <?!= includeFile ('frontend/utils'); ?>
+  <?!= includeFile ('frontend/alerts'); ?>
+  <!-- <?!= includeFile ('frontend/testObject'); ?> -->
+  <?!= includeFile ('frontend/main'); ?>
+  <?!= includeFile ('frontend/searchInputs'); ?>
+  <?!= includeFile ('frontend/modalAddForm'); ?>
+  <?!= includeFile ('frontend/modalEditForm'); ?>
+  <?!= includeFile ('frontend/deleteForm'); ?>
+  <?!= includeFile ('frontend/stepsForms'); ?>
+  <?!= includeFile ('frontend/saveNewStep'); ?>
+  <?!= includeFile ('frontend/viewSteps'); ?>
+  <?!= includeFile ('frontend/editSteps'); ?>
+  <?!= includeFile ('frontend/saveChangesSteps'); ?>
+</html>

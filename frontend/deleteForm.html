@@ -1,0 +1,38 @@
+<script>
+  function handleDeleteButtonClick(event) {
+    const button = event.currentTarget;
+    const row = button.closest("tr");
+    const dataRow = row.querySelectorAll("td");
+
+    // id mysql of the form
+    const title = dataRow[1].textContent;
+    const idMysql = dataRow[3].dataset.id;
+
+    swalWithBootstrapButtons
+      .fire({
+        title: "Are you sure?",
+        html: `
+            <strong>You want to delete form:</strong> <p>${title}??</p>
+            `,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, delete it!",
+        cancelButtonText: "No, cancel!",
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          console.log(idMysql);
+          google.script.run.withSuccessHandler().deleteAForm(idMysql);
+          setTimeout(loadForms(), 3000);
+        }
+      });
+  }
+
+  function initEventButtonDelete() {
+    const buttonDelete = document.querySelectorAll(".btn-delete");
+    buttonDelete.forEach((button) => {
+      button.removeEventListener("click", handleDeleteButtonClick); // Remover el listener previo
+      button.addEventListener("click", handleDeleteButtonClick); // Agregar de nuevo el listener
+    });
+  }
+</script>

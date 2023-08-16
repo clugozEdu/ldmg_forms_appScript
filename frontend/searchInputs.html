@@ -1,0 +1,74 @@
+<script>
+  inputSearchIdDepartament.addEventListener("input", inputEventHandler);
+  inputSearchId.addEventListener("input", inputEventHandler);
+  inputSearchDescription.addEventListener("input", inputEventHandler);
+
+  async function inputEventHandler(event) {
+    const search1 = await searchRegister({
+      id: inputSearchIdDepartament,
+      searchColumns: { departmentId: "formDeptID" },
+      searchArr: objectForms,
+    });
+
+    const search2 = await searchRegister({
+      id: inputSearchId,
+      searchColumns: { id: "formId" },
+      searchArr: search1,
+    });
+
+    const search3 = await searchRegister({
+      id: inputSearchDescription,
+      searchColumns: { description: "formDescription" },
+      searchArr: search2,
+    });
+
+    createDataTable(search3);
+  }
+
+  function searchRegister(params) {
+    return new Promise((resolve, reject) => {
+      const { id, searchColumns, searchArr } = params;
+
+      let search = id.value.toString().toLowerCase().trim();
+      let searchWords = search.split(/\s+/);
+
+      let searchArray = searchArr.filter((element) => {
+        return searchWords.every((word) => {
+          return Object.values(searchColumns).some((column) => {
+            if (element[column] === undefined) return false;
+
+            return (
+              element[column].toString().toLowerCase().indexOf(word) !== -1
+            );
+          });
+        });
+      });
+
+      resolve(searchArray);
+    });
+  }
+
+  // const register = await searchRegister({
+  //       id: searchReservationInput,
+  //       searchColumns: { name: 14, resNumber: 0 },
+  // });
+
+  // console.log(register)
+
+  // function initEventSearch(row) {
+  //   const searchWithDebounce = debounce(
+  //     () =>
+  //       filterDynamicTable(
+  //         [inputSearchIdDepartament, inputSearchId, inputSearchDescription],
+  //         row
+  //       ),
+  //     100
+  //   );
+
+  //   [inputSearchIdDepartament, inputSearchId, inputSearchDescription].forEach(
+  //     (inputSearch) => {
+  //       inputSearch.addEventListener("input", searchWithDebounce);
+  //     }
+  //   );
+  // }
+</script>

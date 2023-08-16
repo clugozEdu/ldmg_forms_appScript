@@ -1,0 +1,34 @@
+<script>
+  // customize alerts with buttons bootstrap
+  const swalWithBootstrapButtons = Swal.mixin({
+    customClass: {
+      confirmButton: "btn btn-success mx-2 my-2",
+      cancelButton: "btn btn-danger mx-2 my-2",
+    },
+    buttonsStyling: false,
+  });
+
+  function createAlert(object) {
+    swalWithBootstrapButtons.fire({
+      title: object.title,
+      text: object.text,
+      html: object.html,
+      icon: "warning",
+      showCancelButton: true,
+      backdrop: true,
+    });
+  }
+
+  // function create alert
+  function createObjectDescription(element) {
+    const objectAlertDescription = {
+      title: "🚨Are you sure?🚨",
+      text: "You won't be able to revert this!",
+      html: `<strong>Are you sure you want to delete form: <p>${
+        $(element).innerHTML
+      }</strong> ??</p>`,
+    };
+
+    return objectAlertDescription;
+  }
+</script>

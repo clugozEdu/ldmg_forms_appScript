@@ -1,0 +1,51 @@
+<script>
+  function initEventViewStep() {
+    const buttonViewStep = document.querySelectorAll(".btn-select-step");
+
+    buttonViewStep.forEach((button) => {
+      button.addEventListener("click", () => {
+        openModalViewStep();
+
+        const row = button.closest("tr");
+        const dataRow = row.querySelectorAll("td");
+        const idMysql = dataRow[0].dataset.idMysql;
+
+        objectStep.forEach((steps) => {
+          if (steps.mySQLId === idMysql) {
+            const mapping = {
+              "title-step-view": steps.stepTitle,
+              "step-description-view": steps.descriptions,
+              "type-step-view": steps.type,
+              "action-step-view": steps.action,
+              "question-step-view": steps.question,
+              "answer-type-step-view": steps.answerType,
+              "answer-1-step-view": steps.answer1,
+              "answer-2-step-view": steps.answer2,
+              "answer-3-step-view": steps.answer3,
+              "answer-4-step-view": steps.answer4,
+            };
+
+            for (const key in mapping) {
+              if (Object.hasOwnProperty.call(mapping, key)) {
+                const element = mapping[key];
+                const input = document.getElementById(key);
+                input.setAttribute("disabled", true);
+                if (element != undefined) {
+                  input.value = element;
+                } else {
+                  input.value = "";
+                }
+              }
+            }
+          }
+        });
+
+        //saveEditStepInTable(button);
+
+        const modal = document.getElementById("view-step");
+        const modalIntance = bootstrap.Modal.getInstance(modal);
+        modalIntance.hide();
+      });
+    });
+  }
+</script>

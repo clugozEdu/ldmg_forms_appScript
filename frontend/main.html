@@ -1,0 +1,114 @@
+<script>
+  // Variables globals
+  const preloaderWrapper = document.getElementById("loader");
+  const table = document.getElementById("table-body-forms");
+  const inputSearchIdDepartament = document.getElementById(
+    "input-search-departament-id"
+  );
+  const inputSearchId = document.getElementById("input-search-id");
+  const inputSearchDescription = document.getElementById(
+    "input-search-description"
+  );
+
+  let arrayTitleDescription = [];
+  let objectDepartamentList = [];
+  let objectForms;
+
+  // // load forms from BD
+  const loadForms = () => {
+    showLoading();
+
+    inputSearchDescription.value = "";
+    inputSearchId.value = "";
+    inputSearchIdDepartament.value = "";
+
+    google.script.run
+      .withSuccessHandler((object) => {
+        objectForms = object;
+        createDataTable(object);
+        //hiddenLoading();
+      })
+      .getFormsList();
+    // Handler for get departments list
+    google.script.run
+      .withSuccessHandler((object) => {
+        getListDepartament(object);
+      })
+      .getDepartmentsList();
+  };
+
+  // get list departament
+  const getListDepartament = (titleDescription) => {
+    titleDescription.forEach((form) => {
+      objectDepartamentList.push({
+        departament: form.deptTitle,
+        departamentId: form.deptID,
+        idMysql: form.mySQLId,
+      });
+      arrayTitleDescription.push(form.deptTitle);
+    });
+  };
+
+  // create table with forms
+  const createDataTable = (formsObject) => {
+    // console.log(formsObject)
+    table.innerHTML = "";
+
+    // tableBody.innerHTML = tableContent;
+    formsObject.forEach((form) => {
+      const row = document.createElement("tr");
+
+      // create tables cells
+      const formIdDepartament = createTableCell("25%", form.formDeptID);
+      const formIdCell = createTableCell("25%", form.formId);
+      const formActionsCell = createTableCell("15%");
+      formActionsCell.dataset.id = form.mySQLId;
+      // truncate description cell
+      const maxDescriptionLength = 80;
+      const truncatedDescription =
+        form.formDescription.slice(0, maxDescriptionLength) + "...";
+      const formDescriptionCell = createTableCell("35%", truncatedDescription);
+
+      // create buttons
+      createAndAppendButtons(
+        formDescriptionCell,
+        form.formDescription,
+        truncatedDescription,
+        formActionsCell,
+        "btn-select",
+        "btn-edit",
+        "btn-delete"
+      );
+
+      [
+        formIdDepartament,
+        formIdCell,
+        formDescriptionCell,
+        formActionsCell,
+      ].forEach((cell) => {
+        row.appendChild(cell);
+      });
+
+      table.appendChild(row);
+    });
+
+    initEventRefresh();
+    initEventButtonEdit();
+    initEventButtonSelect();
+    initEventButtonDelete();
+    setTimeout(hiddenLoading(), 2000);
+  };
+
+  function initEventRefresh() {
+    const buttonRefresh = document.getElementById("update-data");
+    buttonRefresh.addEventListener("click", () => {
+      loadForms();
+    });
+  }
+
+  // Event initialization
+  window.addEventListener("load", () => {
+    loadForms();
+    //createDataTable(objectForms);
+  });
+</script>

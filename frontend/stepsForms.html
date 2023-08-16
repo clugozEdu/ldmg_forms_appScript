@@ -1,0 +1,170 @@
+<script>
+  let idSelected;
+  let isSaveFormStepEvent = false;
+  let objectStep;
+
+  function initEventButtonSelect() {
+    const selectButtons = document.querySelectorAll(".btn-select");
+    selectButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        showLoading();
+        openModalSelectedForm();
+
+        // const row = button.closest("tr");
+        // const rowData = row.querySelectorAll("td");
+
+        // idSelected = rowData[3].dataset.id;
+
+        idSelected = "6b636f91";
+
+        google.script.run
+          .withSuccessHandler((object) => {
+            objectStep = object;
+            setDataInTable(object);
+          })
+          .getAFormStepsList(idSelected);
+      });
+    });
+  }
+
+  function setDataInTable(objectStep) {
+    const tableBody = document.getElementById("table-body-steps");
+    tableBody.innerHTML = "";
+
+    hiddenLoading();
+
+    let idMysqlValue = idSelected;
+
+    objectStep.sort((a, b) => {
+      const stepCodeA = parseInt(a.stepCode);
+      const stepCodeB = parseInt(b.stepCode);
+
+      if (stepCodeA < stepCodeB) {
+        return -1;
+      } else if (stepCodeA > stepCodeB) {
+        return 1;
+      } else {
+        return 0;
+      }
+    });
+
+    console.log(objectStep);
+
+    objectStep.forEach((steps, index) => {
+      const row = document.createElement("tr");
+      row.dataset.idMysql = steps.mySQLId;
+      row.dataset.stepCodeOriginal = steps.stepCode;
+      row.dataset.statusCode = "CodeOriginal";
+      row.dataset.statusEdit = false;
+
+      const stepCode = createTableCell("10%", steps.stepCode);
+      stepCode.dataset.idMysql = steps.mySQLId;
+
+      const stepTitle = createTableCell("30%", steps.stepTitle);
+      const formActionsCell = createTableCell("15%");
+
+      const maxDescriptionLength = 100;
+      const truncatedDescription =
+        steps.descriptions.slice(0, maxDescriptionLength) + "...";
+      const stepDescription = createTableCell("45%", truncatedDescription);
+
+      createAndAppendButtons(
+        stepDescription,
+        steps.descriptions,
+        truncatedDescription,
+        formActionsCell,
+        "btn-select-step",
+        "btn-edit-step",
+        "btn-delete-step"
+      );
+
+      [stepCode, stepTitle, stepDescription, formActionsCell].forEach(
+        (cell) => {
+          row.appendChild(cell);
+        }
+      );
+      tableBody.appendChild(row);
+    });
+
+    initEventAddStep();
+    initEventViewStep();
+    initEventEditStep();
+    dragDropTable();
+  }
+
+  function initEventAddStep() {
+    const buttonAddStep = document.getElementById("add-forms-step");
+    buttonAddStep.addEventListener("click", () => {
+      openModalAddStep();
+
+      const footerModal = document.getElementById("footer-modal-step");
+      footerModal.style.display = "block";
+
+      const buttonAddStep = document.getElementById("save-form-new-step");
+
+      if (!isSaveFormStepEvent) {
+        isSaveFormStepEvent = true;
+
+        buttonAddStep.addEventListener("click", () => {
+          saveNewStep();
+        });
+      }
+    });
+  }
+
+  function dragDropTable() {
+    let draggedItem = null;
+
+    document.querySelectorAll("#table-form-steps tbody tr").forEach((row) => {
+      row.setAttribute("draggable", true);
+
+      // Evento cuando se inicia el arrastre
+      row.addEventListener("dragstart", function (e) {
+        draggedItem = this;
+        setTimeout(function () {
+          draggedItem.classList.add("dragging");
+        }, 0);
+      });
+
+      // Evento cuando el elemento arrastrado es soltado
+      row.addEventListener("dragend", function (e) {
+        setTimeout(function () {
+          draggedItem.classList.remove("dragging");
+          draggedItem = null;
+          updateStepCodes();
+        }, 0);
+      });
+
+      // Evento necesario para permitir el drop
+      row.addEventListener("dragover", function (e) {
+        e.preventDefault();
+      });
+
+      // Evento cuando se suelta un elemento
+      row.addEventListener("drop", function (e) {
+        e.preventDefault();
+
+        if (draggedItem !== null) {
+          this.parentNode.insertBefore(draggedItem, this);
+        }
+      });
+    });
+
+    function updateStepCodes() {
+      let rows = document.querySelectorAll("#table-form-steps tbody tr");
+      rows.forEach((row, index) => {
+        let stepCodeCell = row.querySelector("td");
+        let newStepCode = index + 1;
+        stepCodeCell.textContent = newStepCode;
+
+        let originalStepCode = row.dataset.stepCodeOriginal;
+
+        if (originalStepCode != newStepCode.toString()) {
+          row.dataset.statusCode = "CodeModified";
+        } else {
+          row.dataset.statusCode = "CodeOriginal";
+        }
+      });
+    }
+  }
+</script>

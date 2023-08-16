@@ -1,0 +1,112 @@
+<script>
+  let currentEditingRow = null;
+  let stepsEditObject = [];
+
+  function initEventEditStep() {
+    const buttonEditStep = document.querySelectorAll(".btn-edit-step");
+    buttonEditStep.forEach((button) => {
+      button.removeEventListener("click", handleEditStep); // Eliminar listeners previos.
+      button.addEventListener("click", handleEditStep);
+    });
+  }
+
+  function handleEditStep(event) {
+    const button = event.currentTarget;
+    openModalEditStep();
+
+    const row = button.closest("tr");
+    currentEditingRow = row;
+
+    const dataRow = row.querySelectorAll("td");
+    const idMysql = dataRow[0].dataset.idMysql;
+
+    objectStep.forEach((steps) => {
+      if (steps.mySQLId === idMysql) {
+        const mapping = {
+          "title-step-edit": steps.stepTitle,
+          "step-description-edit": steps.descriptions,
+          "type-step-edit": steps.type,
+          "action-step-edit": steps.action,
+          "question-step-edit": steps.question,
+          "answer-type-step-edit": steps.answerType,
+          "answer-1-step-edit": steps.answer1,
+          "answer-2-step-edit": steps.answer2,
+          "answer-3-step-edit": steps.answer3,
+          "answer-4-step-edit": steps.answer4,
+        };
+
+        for (const key in mapping) {
+          const element = mapping[key];
+          const input = document.getElementById(key);
+          if (element !== undefined) {
+            input.value = element;
+          } else {
+            input.value = "";
+          }
+        }
+      }
+    });
+
+    const buttonSave = document.getElementById("edit-step");
+    buttonSave.removeEventListener("click", saveEditStepInTable); // Eliminar listeners previos.
+    buttonSave.addEventListener("click", saveEditStepInTable);
+  }
+
+  function saveEditStepInTable() {
+    if (!currentEditingRow) {
+      console.error("No row selected for editing!");
+      return;
+    }
+
+    const row = currentEditingRow;
+    row.dataset.statusEdit = true;
+
+    const dataRow = row.querySelectorAll("td");
+
+    const formData = {
+      mySQLstepId: row.dataset.idMysql,
+      stepCode: dataRow[0].textContent,
+      title: document.getElementById("title-step-edit").value,
+      description: document.getElementById("step-description-edit").value,
+      type: document.getElementById("type-step-edit").value,
+      action: document.getElementById("action-step-edit").value,
+      question: document.getElementById("question-step-edit").value,
+      answerType: document.getElementById("answer-type-step-edit").value,
+      answer1: document.getElementById("answer-1-step-edit").value,
+      answer2: document.getElementById("answer-2-step-edit").value,
+      answer3: document.getElementById("answer-3-step-edit").value,
+      answer4: document.getElementById("answer-4-step-edit").value,
+      photo1: "",
+      photo2: "",
+      photo3: "",
+      video1: "",
+      video2: "",
+      video3: "",
+      status: "",
+      checked: "",
+      background: "",
+    };
+
+    const existingStepIndex = stepsEditObject.findIndex(
+      (step) => step.mySQLstepId === formData.mySQLstepId
+    );
+
+    if (existingStepIndex > -1) {
+      stepsEditObject[existingStepIndex] = formData;
+    } else {
+      stepsEditObject.push(formData);
+    }
+
+    console.log(stepsEditObject);
+
+    // Actualiza el contenido de las celdas específicas
+    dataRow[1].textContent = formData.title;
+    dataRow[2].textContent = formData.description.slice(0, 100) + "...";
+
+    const modal = document.getElementById("edit-form-step");
+    const modalIntance = bootstrap.Modal.getInstance(modal);
+    modalIntance.hide();
+
+    currentEditingRow = null;
+  }
+</script>

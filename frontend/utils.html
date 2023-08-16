@@ -1,0 +1,1101 @@
+<script>
+  function debounce(func, wait) {
+    let timeout;
+    return function (...args) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  // For use this function is required pass two parameters
+  // id of the input field, an object of the columns you want to search
+  // And when you charge the data from the backend the variable
+  // dataBase = Array of success
+
+  function searchRegister(params) {
+    return new Promise((resolve, reject) => {
+      const { id, searchColumns } = params;
+
+      let search = id.value.toString().toLowerCase().trim();
+      let searchWords = search.split(/\s+/);
+
+      let searchArray = dataBase.filter((element) => {
+        return searchWords.every((word) => {
+          return Object.values(searchColumns).some((column) => {
+            return (
+              element[column].toString().toLowerCase().indexOf(word) !== -1
+            );
+          });
+        });
+      });
+
+      resolve(searchArray);
+    });
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  function filterDynamicTable(searchFields, rows) {
+    const searchValues = searchFields.map((field) => field.value.toLowerCase());
+
+    const rowsToChange = [];
+
+    rows.forEach((row) => {
+      let isVisible = true;
+      for (let i = 0; i < searchValues.length; i++) {
+        const columnText = row.cells[i].textContent.toLowerCase();
+        console.log(columnText);
+        if (!columnText.includes(searchValues[i])) {
+          isVisible = false;
+          break;
+        }
+      }
+      if (
+        (row.style.display === "" && !isVisible) ||
+        (row.style.display === "none" && isVisible)
+      ) {
+        rowsToChange.push({ row, isVisible });
+      }
+    });
+
+    rowsToChange.forEach((item) => {
+      item.row.style.display = item.isVisible ? "" : "none";
+    });
+  }
+
+  // function create options for selects
+  function createOptionsForSelects(array, selectId) {
+    let select = document.getElementById(selectId);
+
+    array.forEach((elemento, indice) => {
+      let opcion = document.createElement("option");
+      opcion.text = elemento;
+      opcion.value = indice;
+
+      select.appendChild(opcion);
+    });
+  }
+
+  // function hidden loading preloader when load data
+  function hiddenLoading() {
+    preloaderWrapper.style.visibility = "hidden";
+    preloaderWrapper.style.opacity = "0";
+  }
+
+  // function show loading preloader
+  function showLoading() {
+    preloaderWrapper.style.visibility = "visible";
+    preloaderWrapper.style.opacity = "0.5";
+  }
+
+  // create modal to add new form
+  function createModal(id, title, content) {
+    const modal = document.createElement("div");
+    modal.className = "modal fade modal-lg";
+    modal.id = id;
+    //modal.setAttribute("data-bs-backdrop", "static");
+    modal.tabIndex = -1;
+    modal.setAttribute("aria-labelledby", `${id}Label`);
+    modal.setAttribute("aria-hidden", "true");
+
+    const modalDialog = document.createElement("div");
+    modalDialog.className = "modal-dialog modal-dialog-centered";
+
+    const modalContent = document.createElement("div");
+    modalContent.className = "modal-content shadow-lg";
+
+    modalContent.innerHTML = content;
+
+    modalDialog.appendChild(modalContent);
+
+    modal.appendChild(modalDialog);
+
+    document.body.appendChild(modal);
+  }
+
+  // create modal to add new form
+  function createModalFullScreen(id, title, content) {
+    const modal = document.createElement("div");
+    modal.className = "modal fade";
+    modal.id = id;
+    modal.tabIndex = -1;
+    modal.setAttribute("aria-labelledby", `${id}Label`);
+    modal.setAttribute("aria-hidden", "true");
+
+    const modalDialog = document.createElement("div");
+    modalDialog.className = "modal-dialog modal-xl custom-modal-fullscreen";
+
+    const modalContent = document.createElement("div");
+    modalContent.className = "modal-content";
+
+    // Header del modal
+    const modalHeader = document.createElement("div");
+    modalHeader.className = "modal-header align-items-center";
+
+    const modalTitle = document.createElement("h5");
+    modalTitle.className = "modal-title";
+    modalTitle.style = "font-weight: bold";
+    modalTitle.id = `${id}Label`;
+    modalTitle.textContent = title;
+
+    const closeButton = document.createElement("button");
+    closeButton.type = "button";
+    closeButton.className = "btn-close";
+    closeButton.setAttribute("data-bs-dismiss", "modal");
+    closeButton.setAttribute("aria-label", "Close");
+
+    modalHeader.appendChild(modalTitle);
+    modalHeader.appendChild(closeButton);
+
+    // Contenido del modal
+    const modalBody = document.createElement("div");
+    modalBody.className = "modal-body";
+    modalBody.innerHTML = content;
+
+    modalContent.appendChild(modalHeader);
+    modalContent.appendChild(modalBody);
+
+    modalDialog.appendChild(modalContent);
+
+    modal.appendChild(modalDialog);
+
+    document.body.appendChild(modal);
+  }
+
+  // function abrirFormDetailModal() {
+  //   const content = `
+  //   <div class="modal-header">
+  //     <div class="col-11 text-center">
+  //       <h1 class="modal-title formdetail_title fs-5" id="formdetailModalLabel">FORM DETAIL</h1>
+  //     </div>
+  //     <div class="col-1 text-center">
+  //       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+  //     </div>
+  //   </div>
+  //   <div class="modal-body">
+  //     <form class="row g-3" id="formdetailForm">
+  //       <!-- ... tu contenido del formulario ... -->
+  //     </form>
+  //   </div>
+  //   <div class="modal-footer">
+  //     <div class="container">
+  //       <div class="row d-grid gap-2">
+  //         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+  //       </div>
+  //     </div>
+  //   </div>
+  // `;
+  //   createModal("formdetailModal", "Form Detail Modal", content);
+  //   const modal = new bootstrap.Modal(
+  //     document.getElementById("formdetailModal")
+  //   );
+  //   modal.show();
+  // }
+
+  function openModalNewForm() {
+    const content = `
+    <div class="modal-header">
+      <div class="col-11 text-center">
+        <h1 class="modal-title newForm_title fs-5" id="newFormModalLabel">Add New Form</h1>
+      </div>
+      <div class="col-1 text-center">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+    </div>
+    <div class="modal-body">
+      <form class="row g-3" id="add-New-Form">
+        <div class="col-sm-12 col-md-12 col-lg-12">
+          <div class="input-group">
+            <span class="input-group-text"
+              ><i class="fa-solid fa-bars"></i
+            ></span>
+            <div class="form-floating">
+              <select
+                class="form-select"
+                id="id-departament-forms-new" />
+              >
+              <option value="initSelect" selected>Choose</option>
+              </select>
+              <label
+                id="label-id-forms-new"
+                for="id-departament-forms"
+                >Departament ID</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-12">
+          <div class="input-group">
+            <span class="input-group-text"
+              ><i class="fa-solid fa-highlighter"></i
+            ></span>
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="input"
+                placeholder="Form Title"
+                id="title-forms-new" /><label
+                id="label-title-forms-new"
+                for="title-forms-new"
+                >Form Title</label
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-12">
+          <label for="formDescription" class="form-label">Form Description</label>
+          <textarea class="form-control" id="description-forms-new" name="formDescription" rows="3"></textarea>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" id="save-form-new" class="btn btn-primary">Add Form</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+    </div>
+  `;
+    createModal("new-form-modal", "New Form Modal", content);
+    const modal = new bootstrap.Modal(
+      document.getElementById("new-form-modal")
+    );
+    modal.show();
+  }
+
+  function openModalEditForm() {
+    const content = `
+    <div class="modal-header">
+      <div class="col-11 text-center">
+        <h1 class="modal-title newForm_title fs-5">EDIT FORM</h1>
+      </div>
+      <div class="col-1 text-center">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+    </div>
+    <div class="modal-body">
+      <form class="row g-3" id="edit-Form">
+        <div class="col-sm-12 col-md-12 col-lg-12">
+          <div class="input-group">
+            <span class="input-group-text"
+              ><i class="fa-solid fa-bars"></i
+            ></span>
+            <div class="form-floating">
+              <select
+                class="form-select"
+                id="edit-departament-forms" />
+              >
+              <option value="initSelect" selected>Choose</option>
+              </select>
+              <label
+                id="label-edit-departament-forms"
+                for="edit-departament-forms"
+                >Departament ID</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-12">
+          <div class="input-group">
+            <span class="input-group-text"
+              ><i class="fa-solid fa-highlighter"></i
+            ></span>
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="input"
+                placeholder="Form Title"
+                id="edit-title-forms" /><label
+                id="label-edit-title-forms"
+                for="edit-title-forms"
+                >Form Title</label
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-12">
+          <label for="formDescription" class="form-label">Form Description</label>
+          <textarea class="form-control" id="edit-description-forms" name="formDescription" rows="3"></textarea>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" id="save-form-edit" class="btn btn-primary">Save changes</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+    </div>
+  `;
+    createModal("edit-form-modal", "Edit Modal", content);
+    const modal = new bootstrap.Modal(
+      document.getElementById("edit-form-modal")
+    );
+    modal.show();
+  }
+
+  function openModalSelectedForm() {
+    const content = `
+    <div class="container-fluid">
+      <div class="row">
+        <div class="ccol-sm-12 col-md-12 col-lg-12 ms-5">
+          <button class="btn btn-outline-primary" id="add-forms-step">
+            <i class="fa-solid fa-plus"></i> Add step
+          </button>
+          <button class="btn btn-outline-success" id="save-forms-allStep">
+            <i class="fa-solid fa-save"></i> Save changes
+          </button>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-12 mx-auto mb-2 shadow div-steps">
+          <div class="table-responsive mt-2 mb-4">
+            <table
+              class="table table-hover nowrap mt-1"
+              style="max-width: 100%"
+              id="table-form-steps">
+              <thead>
+                <tr>
+                  <th style="width: 10%">Step code</th>
+                  <th style="width: 30%">Step title</th>
+                  <th style="width: 45%">Step Description</th>
+                  <th style="width: 15%">Actions</th>
+                </tr>
+              </thead>
+              <tbody
+                class="table-group-divider"
+                id="table-body-steps"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+    createModalFullScreen("selected-form-modal", "Forms steps", content);
+    const modal = new bootstrap.Modal(
+      document.getElementById("selected-form-modal")
+    );
+    modal.show();
+  }
+
+  function openModalAddStep() {
+    const content = `
+    <div class="modal-header">
+      <div class="col-11 text-center">
+        <h1 class="modal-title newForm_title fs-5" id="title-modal-step">Add New Step</h1>
+      </div>
+      <div class="col-1 text-center">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+    </div>
+    <div class="modal-body">
+      <form class="row g-3" id="add-New-step-Form">
+        <div class="col-sm-12 col-md-12 col-lg-12">
+          <div class="input-group">
+            <span class="input-group-text"
+              ><i class="fa-solid fa-highlighter"></i
+            ></span>
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="input"
+                placeholder="Step title"
+                id="title-step-new" /><label
+                id="label-title-step-new"
+                for="title-step-new"
+                >Step Title</label
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-12">
+          <label for="step-description" class="form-label">Step description</label>
+          <textarea class="form-control" id="step-description" name="step-description" rows="3"></textarea>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-6">
+          <div class="input-group">
+            <span class="input-group-text"
+              ><i class="fa-solid fa-circle-chevron-down"></i
+            ></span>
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="input"
+                placeholder="Type"
+                id="type-step-new" /><label
+                id="label-type-step-new"
+                for="type-step-new"
+                >Type</label
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-6">
+          <div class="input-group">
+            <span class="input-group-text"
+              ><i class="fa-solid fa-circle-chevron-right"></i
+            ></span>
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="input"
+                placeholder="Action"
+                id="action-step-new" /><label
+                id="label-action-step-new"
+                for="action-step-new"
+                >Action</label
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-6">
+          <div class="input-group">
+            <span class="input-group-text"
+              ><i class="fa-solid fa-question"></i
+            ></span>
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="input"
+                placeholder="Question"
+                id="question-step-new" /><label
+                id="label-question-step-new"
+                for="question-step-new"
+                >Question</label
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-6">
+          <div class="input-group">
+            <span class="input-group-text"
+              ><i class="fa-solid fa-circle-check"></i
+            ></span>
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="input"
+                placeholder="Answer type"
+                id="answer-type-step-new" /><label
+                id="label-answer-type-step-new"
+                for="answer-type-step-new"
+                >Answer type</label
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-6">
+          <div class="input-group">
+            <span class="input-group-text"
+              ><i class="fa-solid fa-1"></i
+            ></span>
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="input"
+                placeholder="Answer 1"
+                id="answer-1-step-new" /><label
+                id="label-answer-1-step-new"
+                for="answer-type-1-new"
+                >Answer 1</label
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-6">
+          <div class="input-group">
+            <span class="input-group-text"
+              ><i class="fa-solid fa-2"></i
+            ></span>
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="input"
+                placeholder="Answer 2"
+                id="answer-2-step-new" /><label
+                id="label-answer-2-step-new"
+                for="answer-type-2-new"
+                >Answer 2</label
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-6">
+          <div class="input-group">
+            <span class="input-group-text"
+              ><i class="fa-solid fa-3"></i
+            ></span>
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="input"
+                placeholder="Answer 3"
+                id="answer-3-step-new" /><label
+                id="label-answer-3-step-new"
+                for="answer-type-3-new"
+                >Answer 3</label
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-6">
+          <div class="input-group">
+            <span class="input-group-text"
+              ><i class="fa-solid fa-4"></i
+            ></span>
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="input"
+                placeholder="Answer 4"
+                id="answer-4-step-new" /><label
+                id="label-answer-4-step-new"
+                for="answer-type-4-new"
+                >Answer 4</label
+              >
+            </div>
+          </div>
+        </div>
+
+      </form>
+    </div>
+    <div class="modal-footer" id="footer-modal-step">
+        <button type="submit" id="save-form-new-step" class="btn btn-primary">Save Step</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+    </div>
+  `;
+    createModal("new-form-step", "New Step Form", content);
+    const modal = new bootstrap.Modal(document.getElementById("new-form-step"));
+    modal.show();
+  }
+
+  function openModalEditStep() {
+    const content = `
+    <div class="modal-header">
+      <div class="col-11 text-center">
+        <h1 class="modal-title newForm_title fs-5" id="title-modal-step">Edit Step</h1>
+      </div>
+      <div class="col-1 text-center">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+    </div>
+    <div class="modal-body">
+      <form class="row g-3" id="edit-step-Form">
+        <div class="col-sm-12 col-md-12 col-lg-12">
+          <div class="input-group">
+            <span class="input-group-text"
+              ><i class="fa-solid fa-highlighter"></i
+            ></span>
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="input"
+                placeholder="Step title"
+                id="title-step-edit" /><label
+                id="label-title-step-edit"
+                for="title-step-edit"
+                >Step Title</label
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-12">
+          <label for="step-description-edit" class="form-label">Step description</label>
+          <textarea class="form-control" id="step-description-edit" name="step-description" rows="3"></textarea>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-6">
+          <div class="input-group">
+            <span class="input-group-text"
+              ><i class="fa-solid fa-circle-chevron-down"></i
+            ></span>
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="input"
+                placeholder="Type"
+                id="type-step-edit" /><label
+                id="label-type-step-edit"
+                for="type-step-edit"
+                >Type</label
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-6">
+          <div class="input-group">
+            <span class="input-group-text"
+              ><i class="fa-solid fa-circle-chevron-right"></i
+            ></span>
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="input"
+                placeholder="Action"
+                id="action-step-edit" /><label
+                id="label-action-step-edit"
+                for="action-step-edit"
+                >Action</label
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-6">
+          <div class="input-group">
+            <span class="input-group-text"
+              ><i class="fa-solid fa-question"></i
+            ></span>
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="input"
+                placeholder="Question"
+                id="question-step-edit" /><label
+                id="label-question-step-edit"
+                for="question-step-edit"
+                >Question</label
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-6">
+          <div class="input-group">
+            <span class="input-group-text"
+              ><i class="fa-solid fa-circle-check"></i
+            ></span>
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="input"
+                placeholder="Answer type"
+                id="answer-type-step-edit" /><label
+                id="label-answer-type-step-edit"
+                for="answer-type-step-edit"
+                >Answer type</label
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-6">
+          <div class="input-group">
+            <span class="input-group-text"
+              ><i class="fa-solid fa-1"></i
+            ></span>
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="input"
+                placeholder="Answer 1"
+                id="answer-1-step-edit" /><label
+                id="label-answer-1-step-edit"
+                for="answer-type-1-edit"
+                >Answer 1</label
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-6">
+          <div class="input-group">
+            <span class="input-group-text"
+              ><i class="fa-solid fa-2"></i
+            ></span>
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="input"
+                placeholder="Answer 2"
+                id="answer-2-step-edit" /><label
+                id="label-answer-2-step-edit"
+                for="answer-type-2-edit"
+                >Answer 2</label
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-6">
+          <div class="input-group">
+            <span class="input-group-text"
+              ><i class="fa-solid fa-3"></i
+            ></span>
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="input"
+                placeholder="Answer 3"
+                id="answer-3-step-edit" /><label
+                id="label-answer-3-step-edit"
+                for="answer-type-3-edit"
+                >Answer 3</label
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-6">
+          <div class="input-group">
+            <span class="input-group-text"
+              ><i class="fa-solid fa-4"></i
+            ></span>
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="input"
+                placeholder="Answer 4"
+                id="answer-4-step-edit" /><label
+                id="label-answer-4-step-edit"
+                for="answer-type-4-edit"
+                >Answer 4</label
+              >
+            </div>
+          </div>
+        </div>
+
+      </form>
+    </div>
+    <div class="modal-footer" id="footer-modal-step">
+        <button type="submit" id="edit-step" class="btn btn-primary">Save Step</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+    </div>
+  `;
+    createModal("edit-form-step", "Edit Step Form", content);
+    const modal = new bootstrap.Modal(
+      document.getElementById("edit-form-step")
+    );
+    modal.show();
+  }
+
+  function openModalViewStep() {
+    const content = `
+    <div class="modal-header">
+      <div class="col-11 text-center">
+        <h1 class="modal-title newForm_title fs-5" id="title-modal-step">View Step</h1>
+      </div>
+      <div class="col-1 text-center">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+    </div>
+    <div class="modal-body">
+      <form class="row g-3" id="view-step-Form">
+        <div class="col-sm-12 col-md-12 col-lg-12">
+          <div class="input-group">
+            <span class="input-group-text"
+              ><i class="fa-solid fa-highlighter"></i
+            ></span>
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="input"
+                placeholder="Step title"
+                id="title-step-view" /><label
+                id="label-title-step-view"
+                for="title-step-view"
+                >Step Title</label
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-12">
+          <label for="step-description-view" class="form-label">Step description</label>
+          <textarea class="form-control" id="step-description-view" name="step-description" rows="3"></textarea>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-6">
+          <div class="input-group">
+            <span class="input-group-text"
+              ><i class="fa-solid fa-circle-chevron-down"></i
+            ></span>
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="input"
+                placeholder="Type"
+                id="type-step-view" /><label
+                id="label-type-step-view"
+                for="type-step-view"
+                >Type</label
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-6">
+          <div class="input-group">
+            <span class="input-group-text"
+              ><i class="fa-solid fa-circle-chevron-right"></i
+            ></span>
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="input"
+                placeholder="Action"
+                id="action-step-view" /><label
+                id="label-action-step-view"
+                for="action-step-view"
+                >Action</label
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-6">
+          <div class="input-group">
+            <span class="input-group-text"
+              ><i class="fa-solid fa-question"></i
+            ></span>
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="input"
+                placeholder="Question"
+                id="question-step-view" /><label
+                id="label-question-step-view"
+                for="question-step-view"
+                >Question</label
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-6">
+          <div class="input-group">
+            <span class="input-group-text"
+              ><i class="fa-solid fa-circle-check"></i
+            ></span>
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="input"
+                placeholder="Answer type"
+                id="answer-type-step-view" /><label
+                id="label-answer-type-step-view"
+                for="answer-type-step-view"
+                >Answer type</label
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-6">
+          <div class="input-group">
+            <span class="input-group-text"
+              ><i class="fa-solid fa-1"></i
+            ></span>
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="input"
+                placeholder="Answer 1"
+                id="answer-1-step-view" /><label
+                id="label-answer-1-step-view"
+                for="answer-type-1-view"
+                >Answer 1</label
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-6">
+          <div class="input-group">
+            <span class="input-group-text"
+              ><i class="fa-solid fa-2"></i
+            ></span>
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="input"
+                placeholder="Answer 2"
+                id="answer-2-step-view" /><label
+                id="label-answer-2-step-view"
+                for="answer-type-2-view"
+                >Answer 2</label
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-6">
+          <div class="input-group">
+            <span class="input-group-text"
+              ><i class="fa-solid fa-3"></i
+            ></span>
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="input"
+                placeholder="Answer 3"
+                id="answer-3-step-view" /><label
+                id="label-answer-3-step-view"
+                for="answer-type-3-view"
+                >Answer 3</label
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-6">
+          <div class="input-group">
+            <span class="input-group-text"
+              ><i class="fa-solid fa-4"></i
+            ></span>
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="input"
+                placeholder="Answer 4"
+                id="answer-4-step-view" /><label
+                id="label-answer-4-step-view"
+                for="answer-type-4-view"
+                >Answer 4</label
+              >
+            </div>
+          </div>
+        </div>
+
+      </form>
+    </div>
+  `;
+    createModal("view-step", "View Step Form", content);
+    const modal = new bootstrap.Modal(document.getElementById("view-step"));
+    modal.show();
+  }
+
+  function resetForm(departament, title, description) {
+    departament.value = departament.selectedIndex = "initSelect";
+    title.value = "";
+    description.value = "";
+  }
+
+  function resetFormStep() {
+    const formNewStep = document.getElementById("add-New-step-Form");
+    return formNewStep.reset();
+  }
+
+  const setCellStyles = (cell, maxWidth) => {
+    cell.style.maxWidth = maxWidth;
+    cell.style.overflow = "hidden";
+    cell.style.whiteSpace = "normal";
+  };
+
+  const createTableCell = (maxWidth, textContent = "") => {
+    const cell = document.createElement("td");
+    setCellStyles(cell, maxWidth);
+    cell.textContent = textContent;
+    return cell;
+  };
+
+  function createAndAppendButtons(
+    formDescriptionCell,
+    formDescription,
+    truncatedDescription,
+    formActionsCell,
+    classSelect,
+    classEdit,
+    classDelete
+  ) {
+    const buttonContainer = document.createElement("div");
+    buttonContainer.style.display = "flex";
+
+    // Función auxiliar para crear un botón
+    function createButton(classes, iconClass, marginRight, displayStyle) {
+      const button = document.createElement("button");
+      button.classList.add(...classes);
+      const icon = document.createElement("i");
+      icon.classList.add(...iconClass.split(" "));
+      button.appendChild(icon);
+      button.style.marginRight = marginRight;
+      button.style.display = displayStyle;
+      return button;
+    }
+
+    const expandButton = createButton(
+      ["btn", "btn-warning"],
+      "fa-solid fa-chevron-down",
+      "2px",
+      "block"
+    );
+    expandButton.addEventListener("click", () => {
+      formDescriptionCell.textContent = formDescription;
+      expandButton.style.display = "none";
+      collapseButton.style.display = "block";
+    });
+
+    const collapseButton = createButton(
+      ["btn", "btn-warning"],
+      "fa-solid fa-chevron-up",
+      "2px",
+      "none"
+    );
+    collapseButton.addEventListener("click", () => {
+      formDescriptionCell.textContent = truncatedDescription;
+      collapseButton.style.display = "none";
+      expandButton.style.display = "block";
+    });
+
+    const selectButton = createButton(
+      ["btn", "btn-primary", classSelect],
+      "fa-solid fa-check-circle",
+      "2px",
+      "block"
+    );
+
+    const editButton = createButton(
+      ["btn", "btn-success", classEdit],
+      "fa-solid fa-edit",
+      "2px",
+      "block"
+    );
+
+    const deleteButton = createButton(
+      ["btn", "btn-danger", classDelete],
+      "fa-solid fa-trash",
+      "2px",
+      "block"
+    );
+
+    [
+      expandButton,
+      collapseButton,
+      selectButton,
+      editButton,
+      deleteButton,
+    ].forEach((btn) => {
+      buttonContainer.appendChild(btn);
+    });
+
+    formActionsCell.appendChild(buttonContainer);
+  }
+
+  function getMaxStepCodeFromTable() {
+    const tableBody = document.getElementById("table-body-steps");
+    let lastCode = 0;
+
+    tableBody.querySelectorAll("tr").forEach((row) => {
+      const cells = row.querySelectorAll("td");
+
+      if (cells.length > 0) {
+        const stepCodeText = cells[0].textContent.trim();
+
+        const currentCode = parseInt(stepCodeText, 10);
+        if (currentCode > lastCode) {
+          lastCode = currentCode;
+        }
+      }
+    });
+
+    return lastCode + 1;
+  }
+</script>

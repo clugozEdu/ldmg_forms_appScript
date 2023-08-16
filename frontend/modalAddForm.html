@@ -1,0 +1,73 @@
+<script>
+  document.addEventListener("click", function (event) {
+    // Si el botón 'add-forms' fue clickeado
+    if (event.target.matches("#add-forms")) {
+      openModalNewForm();
+
+      const departamentElement = document.getElementById(
+        "id-departament-forms-new"
+      );
+      if (departamentElement) {
+        departamentElement.innerHTML = "";
+        createOptionsForSelects(
+          arrayTitleDescription,
+          "id-departament-forms-new"
+        );
+      }
+    }
+
+    // Si el botón 'save-form-new' fue clickeado
+    if (event.target.matches("#save-form-new")) {
+      const idDepartament = document.getElementById("id-departament-forms-new");
+      const selectedIndex = idDepartament.selectedIndex;
+      const selectedOption = idDepartament.options[selectedIndex].text;
+
+      const title = document.getElementById("title-forms-new");
+      const titleForm = title.value;
+
+      const description = document.getElementById("description-forms-new");
+      const descriptionForm = description.value;
+
+      let formDepartmentId;
+
+      objectDepartamentList.forEach((form) => {
+        if (selectedOption === form.departament) {
+          formDepartmentId = form.idMysql;
+        }
+      });
+
+      let newForm = {
+        formDepartmentId: formDepartmentId,
+        description: descriptionForm,
+        title: titleForm,
+      };
+
+      swalWithBootstrapButtons
+        .fire({
+          title: "Are you sure?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "Yes, saved!",
+          cancelButtonText: "No, cancel!",
+        })
+        .then((result) => {
+          if (result.isConfirmed) {
+            google.script.run
+              .withSuccessHandler((data) => {
+                resetForm(idDepartament, title, description);
+                window.alert(data);
+              })
+              .addNewForm(newForm);
+
+            setTimeout(loadForms(), 3000);
+          }
+        });
+
+      const modal = document.getElementById("new-form-modal");
+      if (modal) {
+        const modalIntance = bootstrap.Modal.getInstance(modal);
+        modalIntance.hide();
+      }
+    }
+  });
+</script>
