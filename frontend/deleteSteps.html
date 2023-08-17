@@ -1,0 +1,53 @@
+<script>
+  let arrayDeleteStep = [];
+
+  function handleDeleteStep(event) {
+    const button = event.currentTarget;
+    const row = button.closest("tr");
+    const dataRow = row.querySelectorAll("td");
+
+    //get info step
+    const title = dataRow[1].textContent;
+    const idMysql = row.dataset.idMysql;
+
+    const stepDelete = [idMysql];
+
+    // delete array for update code
+    arrayCodeModified = arrayCodeModified.filter(
+      (item) => item.idStepMySQL !== idMysql
+    );
+
+    stepsEditObject = stepsEditObject.filter((item) => {
+      item.mySQLstepId != idMysql;
+    });
+
+    arrayDeleteStep.push(stepDelete);
+
+    swalWithBootstrapButtons
+      .fire({
+        title: "Are you sure?",
+        html: `
+            <strong>You want to delete form:</strong> <p>${title}??</p>
+            `,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, delete it!",
+        cancelButtonText: "No, cancel!",
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          row.remove();
+          updateStepCodes();
+        }
+      });
+  }
+
+  function initEventDeleteStep() {
+    const buttonDelete = document.querySelectorAll(".btn-delete-step");
+
+    buttonDelete.forEach((button) => {
+      button.removeEventListener("click", handleDeleteStep);
+      button.addEventListener("click", handleDeleteStep);
+    });
+  }
+</script>

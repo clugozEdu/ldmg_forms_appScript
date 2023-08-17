@@ -1,6 +1,5 @@
 <script>
   document.addEventListener("click", function (event) {
-    // Si el botón 'add-forms' fue clickeado
     if (event.target.matches("#add-forms")) {
       openModalNewForm();
 
@@ -18,6 +17,7 @@
 
     // Si el botón 'save-form-new' fue clickeado
     if (event.target.matches("#save-form-new")) {
+      showLoading();
       const idDepartament = document.getElementById("id-departament-forms-new");
       const selectedIndex = idDepartament.selectedIndex;
       const selectedOption = idDepartament.options[selectedIndex].text;
@@ -42,32 +42,38 @@
         title: titleForm,
       };
 
-      swalWithBootstrapButtons
-        .fire({
-          title: "Are you sure?",
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonText: "Yes, saved!",
-          cancelButtonText: "No, cancel!",
-        })
-        .then((result) => {
-          if (result.isConfirmed) {
-            google.script.run
-              .withSuccessHandler((data) => {
-                resetForm(idDepartament, title, description);
-                window.alert(data);
-              })
-              .addNewForm(newForm);
+      google.script.run
+        .withSuccessHandler((data) => {
+          if (data?.length > 0) {
+            swalWithBootstrapButtons.fire({
+              title: "Excellent!",
+              html: `<P>The form has been successfully saved</P>`,
+              icon: "success",
+              confirmButtonText: "Ok",
+            });
 
-            setTimeout(loadForms(), 3000);
+            resetForm(idDepartament, title, description);
+
+            setTimeout(() => {
+              loadForms();
+            }, 3000);
+
+            const modal = document.getElementById("new-form-modal");
+            if (modal) {
+              const modalIntance = bootstrap.Modal.getInstance(modal);
+              modalIntance.hide();
+            }
+          } else {
+            hiddenLoading();
+            swalWithBootstrapButtons.fire({
+              title: "Error!",
+              html: `<P>There was an error saving the form</P>`,
+              icon: "error",
+              confirmButtonText: "Ok",
+            });
           }
-        });
-
-      const modal = document.getElementById("new-form-modal");
-      if (modal) {
-        const modalIntance = bootstrap.Modal.getInstance(modal);
-        modalIntance.hide();
-      }
+        })
+        .addNewForm(newForm);
     }
   });
 </script>

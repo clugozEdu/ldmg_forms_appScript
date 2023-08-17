@@ -1,0 +1,44 @@
+<script>
+  function handleDeleteNewStep(event) {
+    const button = event.currentTarget;
+
+    const row = button.closest("tr");
+    const dataRow = row.querySelectorAll("td");
+
+    //get info step
+    const title = dataRow[1].textContent;
+    const codeOriginal = row.dataset.stepCodeOriginal;
+
+    // delete array for update code
+    stepNewObject = stepNewObject.filter(
+      (item) => item.originalCode !== codeOriginal
+    );
+
+    swalWithBootstrapButtons
+      .fire({
+        title: "Are you sure?",
+        html: `
+            <strong>You want to delete form:</strong> <p>${title}??</p>
+            `,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, delete it!",
+        cancelButtonText: "No, cancel!",
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          row.remove();
+          updateStepCodes();
+        }
+      });
+  }
+
+  function initDeleteStepNew() {
+    const buttonDeleteNew = document.querySelectorAll(".btn-delete-step-new");
+
+    buttonDeleteNew.forEach((button) => {
+      button.removeEventListener("click", handleDeleteNewStep);
+      button.addEventListener("click", handleDeleteNewStep);
+    });
+  }
+</script>

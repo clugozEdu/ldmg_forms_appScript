@@ -1,27 +1,27 @@
 <script>
-  function initEventViewStep() {
-    const buttonViewStep = document.querySelectorAll(".btn-select-step");
+  function initviewStepNew() {
+    const buttonViewStep = document.querySelectorAll(".btn-select-step-new");
 
     buttonViewStep.forEach((button) => {
       button.addEventListener("click", () => {
         openModalViewStep();
 
         const row = button.closest("tr");
-        const idMysql = row.dataset.idMysql;
+        const codeStepOriginal = row.dataset.stepCodeOriginal;
 
-        objectStep.forEach((steps) => {
-          if (steps.mySQLId === idMysql) {
+        stepNewObject.forEach((step) => {
+          if (step.originalCode == codeStepOriginal) {
             const mapping = {
-              "title-step-view": steps.stepTitle,
-              "step-description-view": steps.descriptions,
-              "type-step-view": steps.type,
-              "action-step-view": steps.action,
-              "question-step-view": steps.question,
-              "answer-type-step-view": steps.answerType,
-              "answer-1-step-view": steps.answer1,
-              "answer-2-step-view": steps.answer2,
-              "answer-3-step-view": steps.answer3,
-              "answer-4-step-view": steps.answer4,
+              "title-step-view": step.title,
+              "step-description-view": step.description,
+              "type-step-view": step.type,
+              "action-step-view": step.action,
+              "question-step-view": step.question,
+              "answer-type-step-view": step.answerType,
+              "answer-1-step-view": step.answer1,
+              "answer-2-step-view": step.answer2,
+              "answer-3-step-view": step.answer3,
+              "answer-4-step-view": step.answer4,
             };
 
             for (const key in mapping) {
@@ -38,8 +38,6 @@
             }
           }
         });
-
-        //saveEditStepInTable(button);
 
         const modal = document.getElementById("view-step");
         const modalIntance = bootstrap.Modal.getInstance(modal);

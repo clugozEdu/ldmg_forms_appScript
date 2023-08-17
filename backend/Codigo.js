@@ -14,7 +14,7 @@ const doGet = () => {
       "viewport",
       "width=device-width , initial-scale=1, shrink-to-fit=no"
     )
-    .setTitle("LDMG Forms");
+    .setTitle("LDMG FORMS");
 };
 
 const includeFile = (filename) => {
@@ -54,12 +54,13 @@ const getFormsList = () => {
         let formDeptID = form[functionsColumnIndexes.parentFunctionID - 1];
         for (let deptData of deptList) {
           if (`${formDeptID}` === `${deptData.mySQLId}`) {
-            formData["formDepartmentID"] = deptData.mySQLId;
-            formData["formDepartmentTitle"] = deptData.deptTitle;
-            formData["formDeptID"] = `${deptData.deptID} ${deptData.deptTitle}`;
-            formData["formDeptShortname"] = deptData.deptShortName;
-            formData["formId"] = `${deptData.deptRefId} ${
-              form[functionsColumnIndexes.title - 1]
+            formData["formDepartmentID"] = deptData["mySQLId"];
+            formData["formDepartmentTitle"] = deptData["deptTitle"];
+            formData[
+              "formDeptID"
+            ] = `${deptData["deptID"]} ${deptData["deptTitle"]}`;
+            formData["formId"] = `${deptData["deptRefId"]} ${
+              form[functionsColumnIndexes["title"] - 1]
             }`;
             break;
           }
@@ -235,7 +236,8 @@ const addNewForm = (newFormInfos) => {
       .getRange(idRowIndex, functionsColumnIndexes.chaseChecker)
       .setValue(0);
 
-    return "Success";
+    Utilities.sleep(2000);
+    return getFormsList();
   } catch (error) {
     console.log(`addNewFormError: ${error.message}`);
     return;
@@ -277,17 +279,18 @@ const addNewSteps = (newStepsInfosArray) => {
       let video2 = newStepInfos.video2;
       let video3 = newStepInfos.video3;
       let status = newStepInfos.status;
-      let checked = newStepInfos.checked;
+      let checked = `${newStepInfos.checked.checked}` === "true" ? "1" : "0";
       let background = newStepInfos.background;
 
       statement.execute(
-        `INSERT INTO tbl_step (stepID,functionID, orders,title,descriptions,type,Action,	Question,AnswerType,Answer1,Answer2,Answer3,Answer4,photo1,photo2,photo3,video1,video2,video2,trainee,status,checked,background) VALUES('${generatesRandomId()}',"${formID}",'${order}','${title}',"${description}","${type}",'${action}','${question}','${answerType}','${answer1}','${answer2}','${answer3}','${answer4}','${photo1}','${photo2}','${photo3}','${video1}','${video2}','${video3}','${userId}','${status}','${checked}','${background}');`
+        `INSERT INTO tbl_step (stepID,functionID, orders,title,descriptions,type,Action,	Question,AnswerType,Answer1,Answer2,Answer3,Answer4,photo1,photo2,photo3,video1,video2,video3,trainee,status,checked,background) VALUES('${generatesRandomId()}',"${formID}",'${order}','${title}',"${description}","${type}",'${action}','${question}','${answerType}','${answer1}','${answer2}','${answer3}','${answer4}','${photo1}','${photo2}','${photo3}','${video1}','${video2}','${video3}','${userId}','${status}','${checked}','${background}');`
       );
     }
 
     statement.close();
     conn.close();
-    return "Success";
+    Utilities.sleep(2000);
+    return getAFormStepsList(newStepsInfosArray[0]["mySQLFormId"]);
   } catch (error) {
     console.log(`addNewStepsError: ${error.message}`);
     return;
@@ -352,7 +355,8 @@ const updateForm = (formInfos) => {
       .getRange(idRowIndex, functionsColumnIndexes.priority)
       .setValue(1);
 
-    return "Success";
+    Utilities.sleep(2000);
+    return getFormsList();
   } catch (error) {
     console.log(`updateFormError: ${error.message}`);
     return;
@@ -385,11 +389,11 @@ const updateSteps = (stepInfosArray) => {
       let video2 = stepInfos.video2;
       let video3 = stepInfos.video3;
       let status = stepInfos.status;
-      let checked = stepInfos.checked;
+      let checked = `${stepInfos.checked}` === "true" ? "1" : "0";
       let background = stepInfos.background;
 
       //const checker = existsInTblFunction('tbl_step', 'stepID', `${stepID}`);
-      //if (checker === false) return the given Step SQLId is not found in the Database;
+      //if (checker === false) return `the given Step SQLId is not found in the Database`;
 
       statement.executeUpdate(
         `UPDATE tbl_step SET title='${title}',descriptions='${description}',orders='${order}',Action='${action}',type='${type}',Question='${question}',AnswerType="${answerType}",Answer1="${answer1}",Answer2='${answer2}',Answer3='${answer3}',Answer4='${answer4}',photo1='${photo1}',photo2="${photo2}",photo3="${photo3}",status='${status}',video1='${video1}',video2='${video2}',video3='${video3}',checked='${checked}',background='${background}' WHERE stepID='${stepID}';`
@@ -435,7 +439,8 @@ const deleteAForm = (mySQLFormId) => {
       .getRange(idRowIndex, functionsColumnIndexes.status)
       .setValue(10);
 
-    return "Success";
+    Utilities.sleep(2000);
+    return getFormsList();
   } catch (error) {
     console.log(`deleteAFormError: ${error.message}`);
     return;

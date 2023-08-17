@@ -46,7 +46,6 @@
       let isVisible = true;
       for (let i = 0; i < searchValues.length; i++) {
         const columnText = row.cells[i].textContent.toLowerCase();
-        console.log(columnText);
         if (!columnText.includes(searchValues[i])) {
           isVisible = false;
           break;
@@ -1047,7 +1046,7 @@
 
     const selectButton = createButton(
       ["btn", "btn-primary", classSelect],
-      "fa-solid fa-check-circle",
+      "fa-solid fa-square-check",
       "2px",
       "block"
     );

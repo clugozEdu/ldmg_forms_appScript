@@ -2,56 +2,6 @@
   let currentEditingRow = null;
   let stepsEditObject = [];
 
-  function initEventEditStep() {
-    const buttonEditStep = document.querySelectorAll(".btn-edit-step");
-    buttonEditStep.forEach((button) => {
-      button.removeEventListener("click", handleEditStep); // Eliminar listeners previos.
-      button.addEventListener("click", handleEditStep);
-    });
-  }
-
-  function handleEditStep(event) {
-    const button = event.currentTarget;
-    openModalEditStep();
-
-    const row = button.closest("tr");
-    currentEditingRow = row;
-
-    const dataRow = row.querySelectorAll("td");
-    const idMysql = dataRow[0].dataset.idMysql;
-
-    objectStep.forEach((steps) => {
-      if (steps.mySQLId === idMysql) {
-        const mapping = {
-          "title-step-edit": steps.stepTitle,
-          "step-description-edit": steps.descriptions,
-          "type-step-edit": steps.type,
-          "action-step-edit": steps.action,
-          "question-step-edit": steps.question,
-          "answer-type-step-edit": steps.answerType,
-          "answer-1-step-edit": steps.answer1,
-          "answer-2-step-edit": steps.answer2,
-          "answer-3-step-edit": steps.answer3,
-          "answer-4-step-edit": steps.answer4,
-        };
-
-        for (const key in mapping) {
-          const element = mapping[key];
-          const input = document.getElementById(key);
-          if (element !== undefined) {
-            input.value = element;
-          } else {
-            input.value = "";
-          }
-        }
-      }
-    });
-
-    const buttonSave = document.getElementById("edit-step");
-    buttonSave.removeEventListener("click", saveEditStepInTable); // Eliminar listeners previos.
-    buttonSave.addEventListener("click", saveEditStepInTable);
-  }
-
   function saveEditStepInTable() {
     if (!currentEditingRow) {
       console.error("No row selected for editing!");
@@ -83,7 +33,7 @@
       video2: "",
       video3: "",
       status: "",
-      checked: "",
+      checked: false,
       background: "",
     };
 
@@ -97,8 +47,6 @@
       stepsEditObject.push(formData);
     }
 
-    console.log(stepsEditObject);
-
     // Actualiza el contenido de las celdas específicas
     dataRow[1].textContent = formData.title;
     dataRow[2].textContent = formData.description.slice(0, 100) + "...";
@@ -108,5 +56,54 @@
     modalIntance.hide();
 
     currentEditingRow = null;
+  }
+
+  function handleEditStep(event) {
+    const button = event.currentTarget;
+    openModalEditStep();
+
+    const row = button.closest("tr");
+    const idMysql = row.dataset.idMysql;
+
+    currentEditingRow = row;
+
+    objectStep.forEach((steps) => {
+      if (steps.mySQLId === idMysql) {
+        const mapping = {
+          "title-step-edit": steps.stepTitle,
+          "step-description-edit": steps.descriptions,
+          "type-step-edit": steps.type,
+          "action-step-edit": steps.action,
+          "question-step-edit": steps.question,
+          "answer-type-step-edit": steps.answerType,
+          "answer-1-step-edit": steps.answer1,
+          "answer-2-step-edit": steps.answer2,
+          "answer-3-step-edit": steps.answer3,
+          "answer-4-step-edit": steps.answer4,
+        };
+
+        for (const key in mapping) {
+          const element = mapping[key];
+          const input = document.getElementById(key);
+          if (element !== undefined) {
+            input.value = element;
+          } else {
+            input.value = "";
+          }
+        }
+      }
+    });
+
+    const buttonSave = document.getElementById("edit-step");
+    buttonSave.removeEventListener("click", saveEditStepInTable);
+    buttonSave.addEventListener("click", saveEditStepInTable);
+  }
+
+  function initEventEditStep() {
+    const buttonEditStep = document.querySelectorAll(".btn-edit-step");
+    buttonEditStep.forEach((button) => {
+      button.removeEventListener("click", handleEditStep);
+      button.addEventListener("click", handleEditStep);
+    });
   }
 </script>

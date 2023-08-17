@@ -19,8 +19,18 @@
 
         google.script.run
           .withSuccessHandler((object) => {
-            objectStep = object;
-            setDataInTable(object);
+            if (object?.length > 0) {
+              objectStep = object;
+              setDataInTable(object);
+            } else {
+              hiddenLoading();
+              swalWithBootstrapButtons.fire({
+                title: "Error!",
+                html: `<P>There was an error loading the steps</P>`,
+                icon: "error",
+                confirmButtonText: "Ok",
+              });
+            }
           })
           .getAFormStepsList(idSelected);
       });
@@ -48,8 +58,6 @@
       }
     });
 
-    console.log(objectStep);
-
     objectStep.forEach((steps, index) => {
       const row = document.createElement("tr");
       row.dataset.idMysql = steps.mySQLId;
@@ -58,7 +66,7 @@
       row.dataset.statusEdit = false;
 
       const stepCode = createTableCell("10%", steps.stepCode);
-      stepCode.dataset.idMysql = steps.mySQLId;
+      //stepCode.dataset.idMysql = steps.mySQLId;
 
       const stepTitle = createTableCell("30%", steps.stepTitle);
       const formActionsCell = createTableCell("15%");
@@ -89,6 +97,7 @@
     initEventAddStep();
     initEventViewStep();
     initEventEditStep();
+    initEventDeleteStep();
     dragDropTable();
   }
 
@@ -100,14 +109,65 @@
       const footerModal = document.getElementById("footer-modal-step");
       footerModal.style.display = "block";
 
-      const buttonAddStep = document.getElementById("save-form-new-step");
+      const buttonSaveStep = document.getElementById("save-form-new-step");
 
       if (!isSaveFormStepEvent) {
         isSaveFormStepEvent = true;
 
-        buttonAddStep.addEventListener("click", () => {
+        buttonSaveStep.addEventListener("click", () => {
           saveNewStep();
         });
+      }
+    });
+  }
+
+  let arrayCodeModified = [];
+  function updateStepCodes() {
+    let rows = document.querySelectorAll("#table-form-steps tbody tr");
+    rows.forEach((row, index) => {
+      // Accediendo al stepCode directamente desde la celda td
+      let stepCodeCell = row.querySelector("td");
+      let newStepCode = index + 1;
+      stepCodeCell.textContent = newStepCode;
+
+      let originalStepCode = row.dataset.stepCodeOriginal;
+
+      let correspondingObjectNewStep = stepNewObject.find(
+        (item) => item.originalCode === originalStepCode
+      );
+      if (correspondingObjectNewStep) {
+        correspondingObjectNewStep.stepCode = newStepCode.toString();
+      }
+
+      let correspondingObject = stepsEditObject.find(
+        (item) => item.mySQLstepId === row.dataset.idMysql
+      );
+      if (correspondingObject) {
+        correspondingObject.stepCode = newStepCode.toString();
+      }
+
+      if (originalStepCode != newStepCode.toString()) {
+        row.dataset.statusCode = "CodeModified";
+
+        if (row.dataset.idMysql != undefined) {
+          let modification = {
+            idStepMySQL: row.dataset.idMysql,
+            stepCode: newStepCode.toString(),
+          };
+          if (
+            !arrayCodeModified.some(
+              (item) => item.idStepMySQL === modification.idStepMySQL
+            )
+          ) {
+            arrayCodeModified.push(modification);
+          }
+        }
+      } else {
+        row.dataset.statusCode = "CodeOriginal";
+
+        arrayCodeModified = arrayCodeModified.filter(
+          (item) => item.idStepMySQL !== row.dataset.idMysql
+        );
       }
     });
   }
@@ -121,15 +181,17 @@
       // Evento cuando se inicia el arrastre
       row.addEventListener("dragstart", function (e) {
         draggedItem = this;
-        setTimeout(function () {
+        setTimeout(() => {
           draggedItem.classList.add("dragging");
+          draggedItem.style.opacity = "0.8"; // Ligeramente transparente
         }, 0);
       });
 
       // Evento cuando el elemento arrastrado es soltado
       row.addEventListener("dragend", function (e) {
-        setTimeout(function () {
+        setTimeout(() => {
           draggedItem.classList.remove("dragging");
+          draggedItem.style.opacity = "1"; // Restaurar opacidad
           draggedItem = null;
           updateStepCodes();
         }, 0);
@@ -138,33 +200,27 @@
       // Evento necesario para permitir el drop
       row.addEventListener("dragover", function (e) {
         e.preventDefault();
+        this.classList.add("highlighted"); // Resaltado de fila de destino
+      });
+
+      // Evento cuando un elemento no está sobre la fila
+      row.addEventListener("dragleave", function (e) {
+        this.classList.remove("highlighted"); // Restaurar fondo original
       });
 
       // Evento cuando se suelta un elemento
       row.addEventListener("drop", function (e) {
         e.preventDefault();
+        this.classList.remove("highlighted"); // Restaurar fondo original
 
         if (draggedItem !== null) {
           this.parentNode.insertBefore(draggedItem, this);
         }
       });
     });
-
-    function updateStepCodes() {
-      let rows = document.querySelectorAll("#table-form-steps tbody tr");
-      rows.forEach((row, index) => {
-        let stepCodeCell = row.querySelector("td");
-        let newStepCode = index + 1;
-        stepCodeCell.textContent = newStepCode;
-
-        let originalStepCode = row.dataset.stepCodeOriginal;
-
-        if (originalStepCode != newStepCode.toString()) {
-          row.dataset.statusCode = "CodeModified";
-        } else {
-          row.dataset.statusCode = "CodeOriginal";
-        }
-      });
-    }
   }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    dragDropTable();
+  });
 </script>

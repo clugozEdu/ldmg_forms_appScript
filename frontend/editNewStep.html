@@ -1,0 +1,106 @@
+<script>
+  function handleEditStepNew(event) {
+    openModalEditStep();
+
+    const button = event.currentTarget;
+    const row = button.closest("tr");
+
+    const stepCode = row.dataset.stepCodeOriginal;
+    currentRowEditNewStep = row;
+
+    const stepIndex = stepNewObject.find(
+      (step) => step.originalCode == stepCode
+    );
+
+    if (!stepIndex) {
+      return;
+    }
+
+    const mapping = {
+      "title-step-edit": stepIndex.title,
+      "step-description-edit": stepIndex.description,
+      "type-step-edit": stepIndex.type,
+      "action-step-edit": stepIndex.action,
+      "question-step-edit": stepIndex.question,
+      "answer-type-step-edit": stepIndex.answerType,
+      "answer-1-step-edit": stepIndex.answer1,
+      "answer-2-step-edit": stepIndex.answer2,
+      "answer-3-step-edit": stepIndex.answer3,
+      "answer-4-step-edit": stepIndex.answer4,
+    };
+
+    for (const key in mapping) {
+      const element = mapping[key];
+      const input = document.getElementById(key);
+      if (element !== undefined) {
+        input.value = element;
+      } else {
+        input.value = "";
+      }
+    }
+
+    currentCodeStepNew = stepCode;
+
+    const buttonSaveEditStep = document.getElementById("edit-step");
+    buttonSaveEditStep.removeEventListener("click", saveStepEditNew);
+    buttonSaveEditStep.addEventListener("click", saveStepEditNew);
+  }
+
+  function initEditNewStep() {
+    const buttonEditStepNew = document.querySelectorAll(".btn-edit-step-new");
+    buttonEditStepNew.forEach((button) => {
+      button.removeEventListener("click", handleEditStepNew);
+      button.addEventListener("click", handleEditStepNew);
+    });
+  }
+
+  function saveStepEditNew() {
+    const editStep = {
+      originalCode: currentCodeStepNew,
+      mySQLstepId: "",
+      stepCode: currentCodeStepNew,
+      title: document.getElementById("title-step-edit").value,
+      description: document.getElementById("step-description-edit").value,
+      type: document.getElementById("type-step-edit").value,
+      action: document.getElementById("action-step-edit").value,
+      question: document.getElementById("question-step-edit").value,
+      answerType: document.getElementById("answer-type-step-edit").value,
+      answer1: document.getElementById("answer-1-step-edit").value,
+      answer2: document.getElementById("answer-2-step-edit").value,
+      answer3: document.getElementById("answer-3-step-edit").value,
+      answer4: document.getElementById("answer-4-step-edit").value,
+      photo1: "",
+      photo2: "",
+      photo3: "",
+      video1: "",
+      video2: "",
+      video3: "",
+      status: "",
+      checked: false,
+      background: "",
+    };
+
+    updateStepInList(editStep);
+
+    const rowToUpdate = currentRowEditNewStep;
+
+    if (rowToUpdate) {
+      rowToUpdate.cells[1].textContent = editStep.title;
+      rowToUpdate.cells[2].textContent =
+        editStep.description.slice(0, 100) + "...";
+    }
+
+    const modal = document.getElementById("edit-form-step");
+    const modalIntance = bootstrap.Modal.getInstance(modal);
+    modalIntance.hide();
+  }
+
+  function updateStepInList(updatedStep) {
+    const index = stepNewObject.findIndex(
+      (step) => step.originalCode == updatedStep.originalCode
+    );
+    if (index > -1) {
+      stepNewObject[index] = updatedStep;
+    }
+  }
+</script>

@@ -21,9 +21,28 @@
       })
       .then((result) => {
         if (result.isConfirmed) {
-          console.log(idMysql);
-          google.script.run.withSuccessHandler().deleteAForm(idMysql);
-          setTimeout(loadForms(), 3000);
+          showLoading();
+          google.script.run
+            .withSuccessHandler((data) => {
+              if (data?.length > 0) {
+                swalWithBootstrapButtons.fire({
+                  title: "Excellent!",
+                  html: `<P>The form has been successfully deleted</P>`,
+                  icon: "success",
+                  confirmButtonText: "Ok",
+                });
+                loadForms();
+              } else {
+                hiddenLoading();
+                swalWithBootstrapButtons.fire({
+                  title: "Error!",
+                  html: `<P>There was an error deleting the form</P>`,
+                  icon: "error",
+                  confirmButtonText: "Ok",
+                });
+              }
+            })
+            .deleteAForm(idMysql);
         }
       });
   }

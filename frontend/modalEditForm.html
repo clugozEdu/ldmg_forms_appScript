@@ -1,22 +1,26 @@
 <script>
+  let idMysqlForm;
+
   function handleEditButtonClickFormEdit(event) {
     openModalEditForm();
     createOptionsForSelects(arrayTitleDescription, "edit-departament-forms");
 
     const button = event.currentTarget;
-    const form = document.getElementById("edit-Form");
     const row = button.closest("tr");
+
     const dataRow = row.querySelectorAll("td");
     const dataDepartament = dataRow[0].textContent;
-    const dataColumnId = dataRow[1].textContent;
+    const dataFormId = dataRow[1].textContent;
     const dataColumnDescription = dataRow[2].textContent;
     const formId = dataRow[3].dataset.id;
+
+    idMysqlForm = formId;
 
     let selectedDepartament = [];
 
     objectForms.forEach((forms) => {
-      if (dataColumnId === forms.formId) {
-        document.getElementById("edit-title-forms").value = dataColumnId;
+      if (formId === forms.mySQLId) {
+        document.getElementById("edit-title-forms").value = dataFormId;
         document.getElementById("edit-description-forms").value =
           forms.formDescription;
         selectedDepartament.push(forms.formDepartmentTitle);
@@ -32,8 +36,8 @@
     });
 
     const buttonAddFormModal = document.getElementById("save-form-edit");
-    buttonAddFormModal.removeEventListener("click", saveEditForm); // Remover el listener previo
-    buttonAddFormModal.addEventListener("click", saveEditForm); // Agregar de nuevo el listener
+    buttonAddFormModal.removeEventListener("click", saveEditForm);
+    buttonAddFormModal.addEventListener("click", saveEditForm);
   }
 
   function initEventButtonEdit() {
@@ -45,8 +49,8 @@
   }
 
   // La función saveEditForm sigue siendo la misma
-
   function saveEditForm() {
+    showLoading();
     const idDepartament = document.getElementById("edit-departament-forms");
     const selectedIndex = idDepartament.selectedIndex;
     const selectedOption = idDepartament.options[selectedIndex].text;
@@ -58,33 +62,46 @@
     const descriptionForm = description.value;
 
     let departamentIdMysql;
-    let formId;
 
-    objectForms.forEach((forms) => {
-      if (
-        forms.formDepartmentTitle === selectedOption &&
-        forms.formId === titleForm
-      ) {
-        departamentIdMysql = forms.formDepartmentID;
-        formId = forms.mySQLId;
+    objectDepartamentList.forEach((departament) => {
+      if (departament.departament === selectedOption) {
+        departamentIdMysql = departament.idMysql;
       }
     });
 
     const editForm = {
-      formId: formId,
+      formId: idMysqlForm,
       formDepartmentId: departamentIdMysql,
       description: descriptionForm,
       title: titleForm,
     };
 
-    console.log(editForm);
+    google.script.run
+      .withSuccessHandler((data) => {
+        if (data?.length > 0) {
+          swalWithBootstrapButtons.fire({
+            title: "Excellent!",
+            html: `<P>Changes have been saved</P>`,
+            icon: "success",
+            confirmButtonText: "Ok",
+          });
+          setTimeout(() => {
+            loadForms();
+          }, 3000);
 
-    google.script.run.withSuccessHandler().updateForm(editForm);
-
-    const modal = document.getElementById("edit-form-modal");
-    const modalIntance = bootstrap.Modal.getInstance(modal);
-    modalIntance.hide();
-
-    setTimeout(loadForms(), 3000);
+          const modal = document.getElementById("edit-form-modal");
+          const modalIntance = bootstrap.Modal.getInstance(modal);
+          modalIntance.hide();
+        } else {
+          hiddenLoading();
+          swalWithBootstrapButtons.fire({
+            title: "Error!",
+            html: `<P>There was an error saving the form</P>`,
+            icon: "error",
+            confirmButtonText: "Ok",
+          });
+        }
+      })
+      .updateForm(editForm);
   }
 </script>
