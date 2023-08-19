@@ -1,8 +1,11 @@
 <script>
+  // Variables to keep track of the current row being edited and the steps being edited
   let currentEditingRow = null;
   let stepsEditObject = [];
 
+  // Function to save the edited step in the table
   function saveEditStepInTable() {
+    // Check if a row has been selected for editing
     if (!currentEditingRow) {
       console.error("No row selected for editing!");
       return;
@@ -10,9 +13,9 @@
 
     const row = currentEditingRow;
     row.dataset.statusEdit = true;
-
     const dataRow = row.querySelectorAll("td");
 
+    // Extract data from the form to create the formData object
     const formData = {
       mySQLstepId: row.dataset.idMysql,
       stepCode: dataRow[0].textContent,
@@ -37,27 +40,32 @@
       background: "",
     };
 
+    // Check if the step is already in the stepsEditObject array
     const existingStepIndex = stepsEditObject.findIndex(
       (step) => step.mySQLstepId === formData.mySQLstepId
     );
 
+    // Update the existing step data or push the new data to the array
     if (existingStepIndex > -1) {
       stepsEditObject[existingStepIndex] = formData;
     } else {
       stepsEditObject.push(formData);
     }
 
-    // Actualiza el contenido de las celdas específicas
+    // Update the content of specific cells in the row
     dataRow[1].textContent = formData.title;
     dataRow[2].textContent = formData.description.slice(0, 100) + "...";
 
+    // Close the edit modal
     const modal = document.getElementById("edit-form-step");
     const modalIntance = bootstrap.Modal.getInstance(modal);
     modalIntance.hide();
 
+    // Reset the currentEditingRow variable
     currentEditingRow = null;
   }
 
+  // Function to handle the edit action for a step
   function handleEditStep(event) {
     const button = event.currentTarget;
     openModalEditStep();
@@ -67,6 +75,7 @@
 
     currentEditingRow = row;
 
+    // Loop through objectStep to find the step data based on idMysql
     objectStep.forEach((steps) => {
       if (steps.mySQLId === idMysql) {
         const mapping = {
@@ -82,6 +91,7 @@
           "answer-4-step-edit": steps.answer4,
         };
 
+        // Populate the modal's input fields with the step's data
         for (const key in mapping) {
           const element = mapping[key];
           const input = document.getElementById(key);
@@ -94,11 +104,13 @@
       }
     });
 
+    // Set the event listener for the save button in the modal
     const buttonSave = document.getElementById("edit-step");
     buttonSave.removeEventListener("click", saveEditStepInTable);
     buttonSave.addEventListener("click", saveEditStepInTable);
   }
 
+  // Function to initialize the event listeners for the edit action of steps
   function initEventEditStep() {
     const buttonEditStep = document.querySelectorAll(".btn-edit-step");
     buttonEditStep.forEach((button) => {

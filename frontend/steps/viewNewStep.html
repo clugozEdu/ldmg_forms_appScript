@@ -1,14 +1,20 @@
 <script>
+  // Initialize the view step button
   function initviewStepNew() {
+    // Get all the buttons with the class "btn-select-step-new"
     const buttonViewStep = document.querySelectorAll(".btn-select-step-new");
 
+    // Get all the buttons with the class "btn-select-step-new"
     buttonViewStep.forEach((button) => {
       button.addEventListener("click", () => {
+        // When a button is clicked, open the modal to view the step details
         openModalViewStep();
 
+        // Get the table row that contains the clicked button
         const row = button.closest("tr");
         const codeStepOriginal = row.dataset.stepCodeOriginal;
 
+        // Find the step object associated with this code in the stepNewObject array
         stepNewObject.forEach((step) => {
           if (step.originalCode == codeStepOriginal) {
             const mapping = {
@@ -24,11 +30,13 @@
               "answer-4-step-view": step.answer4,
             };
 
+            // For each key in the mapping, set the value of the corresponding input field in the modal
             for (const key in mapping) {
               if (Object.hasOwnProperty.call(mapping, key)) {
                 const element = mapping[key];
                 const input = document.getElementById(key);
                 input.setAttribute("disabled", true);
+                // If the element (value) exists, set it as the value of the input. Otherwise, clear the input.
                 if (element != undefined) {
                   input.value = element;
                 } else {
@@ -39,6 +47,7 @@
           }
         });
 
+        // Finally, hide the modal
         const modal = document.getElementById("view-step");
         const modalIntance = bootstrap.Modal.getInstance(modal);
         modalIntance.hide();

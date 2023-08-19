@@ -1,26 +1,36 @@
 <script>
+  // Add a click event listener to the entire document
   document.addEventListener("click", function (event) {
+    // If the target of the click matches the button with ID 'add-forms'
     if (event.target.matches("#add-forms")) {
+      // Open the modal to add a new form
       openModalNewForm();
 
+      // Get the datalist element for the department by its ID
       const departamentElement = document.getElementById(
-        "id-departament-forms-new"
+        "list-departament-forms-new"
       );
       if (departamentElement) {
+        // Clear the current options in the datalist
         departamentElement.innerHTML = "";
-        createOptionsForSelects(
+        // Populate the dropdown with options
+        createDepartamentList(
           arrayTitleDescription,
-          "id-departament-forms-new"
+          "list-departament-forms-new"
         );
       }
     }
 
-    // Si el botón 'save-form-new' fue clickeado
+    // If the 'save-form-new' button was clicked
     if (event.target.matches("#save-form-new")) {
+      // Show a loading animation or screen
       showLoading();
-      const idDepartament = document.getElementById("id-departament-forms-new");
-      const selectedIndex = idDepartament.selectedIndex;
-      const selectedOption = idDepartament.options[selectedIndex].text;
+
+      // Extract values from the form's input fields
+      const departamentTittle = document.getElementById(
+        "id-departament-forms-new"
+      );
+      const departament = departamentTittle.value;
 
       const title = document.getElementById("title-forms-new");
       const titleForm = title.value;
@@ -30,20 +40,24 @@
 
       let formDepartmentId;
 
+      // Loop through the list of departments to find the matching department ID
       objectDepartamentList.forEach((form) => {
-        if (selectedOption === form.departament) {
+        if (departament === form.departament) {
           formDepartmentId = form.idMysql;
         }
       });
 
+      // Create a new form object with the extracted data
       let newForm = {
         formDepartmentId: formDepartmentId,
         description: descriptionForm,
         title: titleForm,
       };
 
+      // Send the new form data to Google Script to be saved
       google.script.run
         .withSuccessHandler((data) => {
+          // If the returned data has items, show a success message
           if (data?.length > 0) {
             swalWithBootstrapButtons.fire({
               title: "Excellent!",
@@ -52,18 +66,24 @@
               confirmButtonText: "Ok",
             });
 
-            resetForm(idDepartament, title, description);
+            // Reset the form inputs to their default values
+            resetForm(departamentTittle, title, description);
 
-            setTimeout(() => {
-              loadForms();
-            }, 3000);
-
+            // Close the new form modal
             const modal = document.getElementById("new-form-modal");
             if (modal) {
               const modalIntance = bootstrap.Modal.getInstance(modal);
               modalIntance.hide();
             }
+
+            // Reload the forms after a delay of 3 seconds
+            setTimeout(() => {
+              loadForms();
+            }, 3000);
+
+            departamentElement.innerHTML = "";
           } else {
+            // If there's no returned data, hide the loading animation and show an error message
             hiddenLoading();
             swalWithBootstrapButtons.fire({
               title: "Error!",

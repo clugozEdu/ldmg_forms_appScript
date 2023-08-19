@@ -1,14 +1,20 @@
 <script>
+  // Function to initialize the event listeners for "view step" buttons
   function initEventViewStep() {
+    // Get all the buttons with the class ".btn-select-step"
     const buttonViewStep = document.querySelectorAll(".btn-select-step");
 
+    // Loop through each of these buttons
     buttonViewStep.forEach((button) => {
       button.addEventListener("click", () => {
+        // Call the function to open the modal for viewing step details
         openModalViewStep();
 
+        // Find the closest parent "tr" element to the button (probably the row of the table the button is in)
         const row = button.closest("tr");
         const idMysql = row.dataset.idMysql;
 
+        // Loop through each step in the 'objectStep' array
         objectStep.forEach((steps) => {
           if (steps.mySQLId === idMysql) {
             const mapping = {
@@ -24,6 +30,7 @@
               "answer-4-step-view": steps.answer4,
             };
 
+            // Loop through each key in the mapping
             for (const key in mapping) {
               if (Object.hasOwnProperty.call(mapping, key)) {
                 const element = mapping[key];
@@ -39,8 +46,7 @@
           }
         });
 
-        //saveEditStepInTable(button);
-
+        // Hide the modal
         const modal = document.getElementById("view-step");
         const modalIntance = bootstrap.Modal.getInstance(modal);
         modalIntance.hide();

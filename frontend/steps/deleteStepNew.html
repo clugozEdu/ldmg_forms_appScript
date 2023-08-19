@@ -1,19 +1,21 @@
 <script>
+  // Function to handle the delete action for a new step
   function handleDeleteNewStep(event) {
+    // Get the clicked button and its parent row
     const button = event.currentTarget;
-
     const row = button.closest("tr");
     const dataRow = row.querySelectorAll("td");
 
-    //get info step
+    // Extract step information from the row's data
     const title = dataRow[1].textContent;
     const codeOriginal = row.dataset.stepCodeOriginal;
 
-    // delete array for update code
+    // Remove the step with the matching original code from the stepNewObject array
     stepNewObject = stepNewObject.filter(
       (item) => item.originalCode !== codeOriginal
     );
 
+    // Display a confirmation dialog using swalWithBootstrapButtons
     swalWithBootstrapButtons
       .fire({
         title: "Are you sure?",
@@ -26,16 +28,22 @@
         cancelButtonText: "No, cancel!",
       })
       .then((result) => {
+        // If the user confirms the deletion
         if (result.isConfirmed) {
+          // Remove the row from the DOM
           row.remove();
+          // Update the step codes after deletion
           updateStepCodes();
         }
       });
   }
 
+  // Function to initialize the event listeners for delete buttons
   function initDeleteStepNew() {
+    // Get all the delete buttons from the document
     const buttonDeleteNew = document.querySelectorAll(".btn-delete-step-new");
 
+    // For each button, remove the previous event listener and add a new one
     buttonDeleteNew.forEach((button) => {
       button.removeEventListener("click", handleDeleteNewStep);
       button.addEventListener("click", handleDeleteNewStep);

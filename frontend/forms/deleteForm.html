@@ -1,13 +1,16 @@
 <script>
+  // Function to handle the delete button click event
   function handleDeleteButtonClick(event) {
+    // Get the clicked button and its parent row
     const button = event.currentTarget;
     const row = button.closest("tr");
     const dataRow = row.querySelectorAll("td");
 
-    // id mysql of the form
+    // Extract the title and MySQL ID from the row's data
     const title = dataRow[1].textContent;
     const idMysql = dataRow[3].dataset.id;
 
+    // Display a confirmation dialog using swalWithBootstrapButtons
     swalWithBootstrapButtons
       .fire({
         title: "Are you sure?",
@@ -20,10 +23,14 @@
         cancelButtonText: "No, cancel!",
       })
       .then((result) => {
+        // If the user confirms the deletion
         if (result.isConfirmed) {
+          // Show a loading animation or screen
           showLoading();
+          // Run the deleteAForm function from Google Script
           google.script.run
             .withSuccessHandler((data) => {
+              // If the returned data has items, show a success message
               if (data?.length > 0) {
                 swalWithBootstrapButtons.fire({
                   title: "Excellent!",
@@ -33,6 +40,7 @@
                 });
                 loadForms();
               } else {
+                // Hide the loading animation or screen and show an error message
                 hiddenLoading();
                 swalWithBootstrapButtons.fire({
                   title: "Error!",
@@ -47,11 +55,15 @@
       });
   }
 
+  // Function to initialize the event listeners for delete buttons
   function initEventButtonDelete() {
+    // Get all the delete buttons from the document
     const buttonDelete = document.querySelectorAll(".btn-delete");
     buttonDelete.forEach((button) => {
-      button.removeEventListener("click", handleDeleteButtonClick); // Remover el listener previo
-      button.addEventListener("click", handleDeleteButtonClick); // Agregar de nuevo el listener
+      // Remove any previous click event listeners from the button
+      button.removeEventListener("click", handleDeleteButtonClick);
+      // Add the handleDeleteButtonClick function as a new click event listener
+      button.addEventListener("click", handleDeleteButtonClick);
     });
   }
 </script>

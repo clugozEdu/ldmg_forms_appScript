@@ -170,22 +170,25 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.9/dist/sweetalert2.all.min.js"></script>
   </body>
 
-  <!-- scripts file -->
-  <?!= includeFile ('frontend/utils'); ?>
-  <?!= includeFile ('frontend/alerts'); ?>
-  <!-- <?!= includeFile ('frontend/testObject'); ?> -->
   <?!= includeFile ('frontend/main'); ?>
-  <?!= includeFile ('frontend/searchInputs'); ?>
-  <?!= includeFile ('frontend/modalAddForm'); ?>
-  <?!= includeFile ('frontend/modalEditForm'); ?>
-  <?!= includeFile ('frontend/deleteForm'); ?>
-  <?!= includeFile ('frontend/stepsForms'); ?>
-  <?!= includeFile ('frontend/viewSteps'); ?>
-  <?!= includeFile ('frontend/saveNewStep'); ?>
-  <?!= includeFile ('frontend/editNewStep'); ?>
-  <?!= includeFile ('frontend/viewNewStep') ?>
-  <?!= includeFile ('frontend/deleteStepNew') ?>
-  <?!= includeFile ('frontend/editSteps'); ?>
-  <?!= includeFile ('frontend/saveChangesSteps'); ?>
-  <?!= includeFile ('frontend/deleteSteps') ?>
+  <!-- helpers -->
+  <?!= includeFile ('frontend/helpers/utils'); ?>
+  <?!= includeFile ('frontend/helpers/alerts'); ?>
+  <?!= includeFile ('frontend/helpers/searchInputs'); ?>
+
+  <!-- forms -->
+  <?!= includeFile ('frontend/forms/modalAddForm'); ?>
+  <?!= includeFile ('frontend/forms/modalEditForm'); ?>
+  <?!= includeFile ('frontend/forms/deleteForm'); ?>
+
+  <!-- steps -->
+  <?!= includeFile ('frontend/steps/stepsForms'); ?>
+  <?!= includeFile ('frontend/steps/viewSteps'); ?>
+  <?!= includeFile ('frontend/steps/saveNewStep'); ?>
+  <?!= includeFile ('frontend/steps/editNewStep'); ?>
+  <?!= includeFile ('frontend/steps/viewNewStep') ?>
+  <?!= includeFile ('frontend/steps/deleteStepNew') ?>
+  <?!= includeFile ('frontend/steps/editSteps'); ?>
+  <?!= includeFile ('frontend/steps/saveChangesSteps'); ?>
+  <?!= includeFile ('frontend/steps/deleteSteps') ?>
 </html>

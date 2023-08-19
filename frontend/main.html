@@ -18,20 +18,25 @@
   const loadForms = () => {
     showLoading();
 
+    // Clear  inputs to modal new form
     inputSearchDescription.value = "";
     inputSearchId.value = "";
     inputSearchIdDepartament.value = "";
 
+    // Handler for get form list
     google.script.run
       .withSuccessHandler((object) => {
+        // save object in global variable
         objectForms = object;
+        // create table with forms
         createDataTable(object);
-        //hiddenLoading();
       })
       .getFormsList();
+
     // Handler for get departments list
     google.script.run
       .withSuccessHandler((object) => {
+        // Create list departament in objects departament global
         getListDepartament(object);
       })
       .getDepartmentsList();
@@ -67,6 +72,7 @@
       const truncatedDescription =
         form.formDescription.slice(0, maxDescriptionLength) + "...";
       const formDescriptionCell = createTableCell("35%", truncatedDescription);
+      formDescriptionCell.style.whiteSpace = "pre-wrap";
 
       // create buttons
       createAndAppendButtons(
@@ -91,6 +97,7 @@
       table.appendChild(row);
     });
 
+    // All events to table forms
     initEventRefresh();
     initEventButtonEdit();
     initEventButtonSelect();
@@ -98,6 +105,7 @@
     setTimeout(hiddenLoading(), 2000);
   };
 
+  // Function to refresh data
   function initEventRefresh() {
     const buttonRefresh = document.getElementById("update-data");
     buttonRefresh.addEventListener("click", () => {
@@ -108,6 +116,5 @@
   // Event initialization
   window.addEventListener("load", () => {
     loadForms();
-    //createDataTable(objectForms);
   });
 </script>

@@ -1,13 +1,19 @@
 <script>
+  // Function to handle the edit action for a new step
   function handleEditStepNew(event) {
+    // Open the step edit modal
     openModalEditStep();
 
+    // Get the clicked button and its parent row
     const button = event.currentTarget;
     const row = button.closest("tr");
 
+    // Extract the step code from the row's data
     const stepCode = row.dataset.stepCodeOriginal;
+    // Set the current row for editing
     currentRowEditNewStep = row;
 
+    // Find the step to edit in the stepNewObject array based on its original code
     const stepIndex = stepNewObject.find(
       (step) => step.originalCode == stepCode
     );
@@ -16,10 +22,10 @@
       return;
     }
 
+    // Create a mapping of input IDs to step property values
     const mapping = {
       "title-step-edit": stepIndex.title,
       "step-description-edit": stepIndex.description,
-      "type-step-edit": stepIndex.type,
       "action-step-edit": stepIndex.action,
       "question-step-edit": stepIndex.question,
       "answer-type-step-edit": stepIndex.answerType,
@@ -29,23 +35,39 @@
       "answer-4-step-edit": stepIndex.answer4,
     };
 
+    // Populate the input fields in the modal with the step's data
     for (const key in mapping) {
       const element = mapping[key];
-      const input = document.getElementById(key);
-      if (element !== undefined) {
-        input.value = element;
+      const inputOrSelect = document.getElementById(key);
+
+      if (inputOrSelect.tagName === "SELECT") {
+        // If it's a select element
+        for (let i = 0; i < inputOrSelect.options.length; i++) {
+          if (inputOrSelect.options[i].text === element) {
+            inputOrSelect.selectedIndex = i;
+            break;
+          }
+        }
       } else {
-        input.value = "";
+        // If it's an input element
+        if (element !== undefined) {
+          inputOrSelect.value = element;
+        } else {
+          inputOrSelect.value = "";
+        }
       }
     }
 
+    // Set the current step code for editing
     currentCodeStepNew = stepCode;
 
+    // Set the event listener for the save button in the edit modal
     const buttonSaveEditStep = document.getElementById("edit-step");
     buttonSaveEditStep.removeEventListener("click", saveStepEditNew);
     buttonSaveEditStep.addEventListener("click", saveStepEditNew);
   }
 
+  // Function to initialize event listeners for the edit action of new steps
   function initEditNewStep() {
     const buttonEditStepNew = document.querySelectorAll(".btn-edit-step-new");
     buttonEditStepNew.forEach((button) => {
@@ -54,17 +76,21 @@
     });
   }
 
+  // Function to save the edited step data
   function saveStepEditNew() {
+    // Construct the edited step object from the input fields in the modal
     const editStep = {
       originalCode: currentCodeStepNew,
       mySQLstepId: "",
       stepCode: currentCodeStepNew,
       title: document.getElementById("title-step-edit").value,
       description: document.getElementById("step-description-edit").value,
-      type: document.getElementById("type-step-edit").value,
+      type: "",
       action: document.getElementById("action-step-edit").value,
       question: document.getElementById("question-step-edit").value,
-      answerType: document.getElementById("answer-type-step-edit").value,
+      answerType: getTextFromSelect(
+        document.getElementById("answer-type-step-edit")
+      ),
       answer1: document.getElementById("answer-1-step-edit").value,
       answer2: document.getElementById("answer-2-step-edit").value,
       answer3: document.getElementById("answer-3-step-edit").value,
@@ -80,21 +106,24 @@
       background: "",
     };
 
+    // Update the step in the stepNewObject array
     updateStepInList(editStep);
 
+    // Update the step's row in the table with the edited data
     const rowToUpdate = currentRowEditNewStep;
-
     if (rowToUpdate) {
       rowToUpdate.cells[1].textContent = editStep.title;
       rowToUpdate.cells[2].textContent =
         editStep.description.slice(0, 100) + "...";
     }
 
+    // Close the edit modal
     const modal = document.getElementById("edit-form-step");
     const modalIntance = bootstrap.Modal.getInstance(modal);
     modalIntance.hide();
   }
 
+  // Function to update a step in the stepNewObject array
   function updateStepInList(updatedStep) {
     const index = stepNewObject.findIndex(
       (step) => step.originalCode == updatedStep.originalCode

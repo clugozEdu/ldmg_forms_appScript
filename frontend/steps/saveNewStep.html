@@ -1,25 +1,31 @@
 <script>
+  // Variables to keep track of the new steps, the current step code, and the current row being edited
   let stepNewObject = [];
   let currentCodeStepNew = null;
   let currentRowEditNewStep = null;
 
+  // Function to save a new step
   function saveNewStep() {
+    // Get the maximum step code from the table
     let lastCodeStep = getMaxStepCodeFromTable();
 
-    // add step in the table
+    // Add the new step to the table
     const tableBody = document.getElementById("table-body-steps");
     const row = document.createElement("tr");
 
+    // Create a new step object with data from the input fields
     let newStepObject = {
       originalCode: lastCodeStep.toString(),
       mySQLFormId: idSelected,
       title: document.getElementById("title-step-new").value,
       description: document.getElementById("step-description").value,
       stepCode: lastCodeStep.toString(),
-      type: document.getElementById("type-step-new").value,
+      type: "", // detele 19/08
       action: document.getElementById("action-step-new").value,
       question: document.getElementById("question-step-new").value,
-      answerType: document.getElementById("answer-type-step-new").value,
+      answerType: getTextFromSelect(
+        document.getElementById("answer-type-step-new")
+      ),
       answer1: document.getElementById("answer-1-step-new").value,
       answer2: document.getElementById("answer-2-step-new").value,
       answer3: document.getElementById("answer-3-step-new").value,
@@ -35,34 +41,36 @@
       background: "",
     };
 
-    //row.dataset.statusCode = "CodeOriginal";
+    // Set row attributes to indicate this is a new step and its title
     row.dataset.statusNew = "newStep";
     row.dataset.title = newStepObject.title;
-
-    // flags to validate if new step
     row.dataset.stepCodeOriginal = newStepObject.stepCode;
 
+    // Check if the step is already in the stepNewObject array based on its original code
     const exitstingStepIndex = stepNewObject.findIndex(
       (step) => step.originalCode === row.dataset.stepCodeOriginal
     );
 
+    // Update the existing step data or push the new data to the array
     if (exitstingStepIndex > -1) {
       stepNewObject[exitstingStepIndex] = newStepObject;
     } else {
       stepNewObject.push(newStepObject);
     }
 
-    //Object save new step
+    // Create table cells for the new step's data
     const rowStepCode = createTableCell("10%", newStepObject.stepCode);
     const rowStepTitle = createTableCell("30%", newStepObject.title);
     const rowFormActionsCell = createTableCell("15%");
 
+    // Truncate the description to a maximum length
     const maxDescriptionLength = 80;
     const truncatedDescription =
       newStepObject.description.slice(0, maxDescriptionLength) + "...";
     const rowStepDescription = createTableCell("45%", truncatedDescription);
     const rowStepActions = createTableCell("15%");
 
+    // Add buttons to the row for selecting, editing, and deleting the step
     createAndAppendButtons(
       rowStepDescription,
       newStepObject.description,
@@ -73,22 +81,28 @@
       "btn-delete-step-new"
     );
 
+    // Append all the created cells to the row
     [rowStepCode, rowStepTitle, rowStepDescription, rowFormActionsCell].forEach(
       (cell) => {
         row.appendChild(cell);
       }
     );
 
+    // Append the row to the table body
     tableBody.appendChild(row);
 
+    // Update the step codes in the table
     updateStepCodes();
 
+    // Initialize the event listeners for the new step's actions
     initEditNewStep();
     initviewStepNew();
     initDeleteStepNew();
     dragDropTable();
+    // Reset the form to its default state
     resetFormStep();
 
+    // Close the new step modal
     const modal = document.getElementById("new-form-step");
     const modalIntance = bootstrap.Modal.getInstance(modal);
     modalIntance.hide();

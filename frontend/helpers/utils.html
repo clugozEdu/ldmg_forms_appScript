@@ -1,79 +1,18 @@
 <script>
-  function debounce(func, wait) {
-    let timeout;
-    return function (...args) {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => func.apply(this, args), wait);
-    };
-  }
-
-  /////////////////////////////////////////////////////////////////////////////
-
-  // For use this function is required pass two parameters
-  // id of the input field, an object of the columns you want to search
-  // And when you charge the data from the backend the variable
-  // dataBase = Array of success
-
-  function searchRegister(params) {
-    return new Promise((resolve, reject) => {
-      const { id, searchColumns } = params;
-
-      let search = id.value.toString().toLowerCase().trim();
-      let searchWords = search.split(/\s+/);
-
-      let searchArray = dataBase.filter((element) => {
-        return searchWords.every((word) => {
-          return Object.values(searchColumns).some((column) => {
-            return (
-              element[column].toString().toLowerCase().indexOf(word) !== -1
-            );
-          });
-        });
-      });
-
-      resolve(searchArray);
-    });
-  }
-
-  /////////////////////////////////////////////////////////////////////////////
-
-  function filterDynamicTable(searchFields, rows) {
-    const searchValues = searchFields.map((field) => field.value.toLowerCase());
-
-    const rowsToChange = [];
-
-    rows.forEach((row) => {
-      let isVisible = true;
-      for (let i = 0; i < searchValues.length; i++) {
-        const columnText = row.cells[i].textContent.toLowerCase();
-        if (!columnText.includes(searchValues[i])) {
-          isVisible = false;
-          break;
-        }
-      }
-      if (
-        (row.style.display === "" && !isVisible) ||
-        (row.style.display === "none" && isVisible)
-      ) {
-        rowsToChange.push({ row, isVisible });
-      }
-    });
-
-    rowsToChange.forEach((item) => {
-      item.row.style.display = item.isVisible ? "" : "none";
-    });
+  // function to get text from select
+  function getTextFromSelect(select) {
+    return select.options[select.selectedIndex].text;
   }
 
   // function create options for selects
-  function createOptionsForSelects(array, selectId) {
-    let select = document.getElementById(selectId);
+  function createDepartamentList(array, selectId) {
+    let dataList = document.getElementById(selectId);
 
     array.forEach((elemento, indice) => {
       let opcion = document.createElement("option");
       opcion.text = elemento;
-      opcion.value = indice;
 
-      select.appendChild(opcion);
+      dataList.appendChild(opcion);
     });
   }
 
@@ -94,10 +33,11 @@
     const modal = document.createElement("div");
     modal.className = "modal fade modal-lg";
     modal.id = id;
-    //modal.setAttribute("data-bs-backdrop", "static");
     modal.tabIndex = -1;
     modal.setAttribute("aria-labelledby", `${id}Label`);
     modal.setAttribute("aria-hidden", "true");
+    modal.setAttribute("data-bs-backdrop", "static");
+    modal.setAttribute("data-bs-keyboard", "false");
 
     const modalDialog = document.createElement("div");
     modalDialog.className = "modal-dialog modal-dialog-centered";
@@ -122,6 +62,8 @@
     modal.tabIndex = -1;
     modal.setAttribute("aria-labelledby", `${id}Label`);
     modal.setAttribute("aria-hidden", "true");
+    modal.setAttribute("data-bs-backdrop", "static");
+    modal.setAttribute("data-bs-keyboard", "false");
 
     const modalDialog = document.createElement("div");
     modalDialog.className = "modal-dialog modal-xl custom-modal-fullscreen";
@@ -163,36 +105,7 @@
     document.body.appendChild(modal);
   }
 
-  // function abrirFormDetailModal() {
-  //   const content = `
-  //   <div class="modal-header">
-  //     <div class="col-11 text-center">
-  //       <h1 class="modal-title formdetail_title fs-5" id="formdetailModalLabel">FORM DETAIL</h1>
-  //     </div>
-  //     <div class="col-1 text-center">
-  //       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-  //     </div>
-  //   </div>
-  //   <div class="modal-body">
-  //     <form class="row g-3" id="formdetailForm">
-  //       <!-- ... tu contenido del formulario ... -->
-  //     </form>
-  //   </div>
-  //   <div class="modal-footer">
-  //     <div class="container">
-  //       <div class="row d-grid gap-2">
-  //         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-  //       </div>
-  //     </div>
-  //   </div>
-  // `;
-  //   createModal("formdetailModal", "Form Detail Modal", content);
-  //   const modal = new bootstrap.Modal(
-  //     document.getElementById("formdetailModal")
-  //   );
-  //   modal.show();
-  // }
-
+  // Modal New Form
   function openModalNewForm() {
     const content = `
     <div class="modal-header">
@@ -211,15 +124,18 @@
               ><i class="fa-solid fa-bars"></i
             ></span>
             <div class="form-floating">
-              <select
-                class="form-select"
-                id="id-departament-forms-new" />
-              >
-              <option value="initSelect" selected>Choose</option>
-              </select>
+              <datalist id="list-departament-forms-new"></datalist>
+              <input
+                class="form-control"
+                type="datalist"
+                placeholder="Search Departament ID"
+                id="id-departament-forms-new"
+                list="list-departament-forms-new" />
+              </input>
+              
               <label
                 id="label-id-forms-new"
-                for="id-departament-forms"
+                for="id-departament-forms-new"
                 >Departament ID</label>
             </div>
           </div>
@@ -262,6 +178,7 @@
     modal.show();
   }
 
+  // Modal Edit Form
   function openModalEditForm() {
     const content = `
     <div class="modal-header">
@@ -280,12 +197,15 @@
               ><i class="fa-solid fa-bars"></i
             ></span>
             <div class="form-floating">
-              <select
-                class="form-select"
-                id="edit-departament-forms" />
-              >
-              <option value="initSelect" selected>Choose</option>
-              </select>
+              <datalist id="list-edit-departament-forms"></datalist>
+              <input
+                class="form-control"
+                type="datalist"
+                placeholder="Search Departament ID"
+                id="edit-departament-forms"
+                list="list-edit-departament-forms" />
+              </input>
+              
               <label
                 id="label-edit-departament-forms"
                 for="edit-departament-forms"
@@ -331,6 +251,7 @@
     modal.show();
   }
 
+  // Modal Selected Form Steps
   function openModalSelectedForm() {
     const content = `
     <div class="container-fluid">
@@ -374,6 +295,7 @@
     modal.show();
   }
 
+  // Modal Add Step
   function openModalAddStep() {
     const content = `
     <div class="modal-header">
@@ -410,26 +332,7 @@
           <textarea class="form-control" id="step-description" name="step-description" rows="3"></textarea>
         </div>
 
-        <div class="col-sm-12 col-md-12 col-lg-6">
-          <div class="input-group">
-            <span class="input-group-text"
-              ><i class="fa-solid fa-circle-chevron-down"></i
-            ></span>
-            <div class="form-floating">
-              <input
-                class="form-control"
-                type="input"
-                placeholder="Type"
-                id="type-step-new" /><label
-                id="label-type-step-new"
-                for="type-step-new"
-                >Type</label
-              >
-            </div>
-          </div>
-        </div>
-
-        <div class="col-sm-12 col-md-12 col-lg-6">
+        <div class="col-sm-12 col-md-12 col-lg-4">
           <div class="input-group">
             <span class="input-group-text"
               ><i class="fa-solid fa-circle-chevron-right"></i
@@ -447,8 +350,9 @@
             </div>
           </div>
         </div>
+        
 
-        <div class="col-sm-12 col-md-12 col-lg-6">
+        <div class="col-sm-12 col-md-12 col-lg-4">
           <div class="input-group">
             <span class="input-group-text"
               ><i class="fa-solid fa-question"></i
@@ -466,18 +370,30 @@
             </div>
           </div>
         </div>
-
-        <div class="col-sm-12 col-md-12 col-lg-6">
+      
+        <div class="col-sm-12 col-md-12 col-lg-4">
           <div class="input-group">
             <span class="input-group-text"
               ><i class="fa-solid fa-circle-check"></i
             ></span>
             <div class="form-floating">
-              <input
-                class="form-control"
-                type="input"
-                placeholder="Answer type"
-                id="answer-type-step-new" /><label
+              <select
+                class="form-select"
+                id="answer-type-step-new" />
+                <option selected>Select type</option>
+                <option value="1">Short answer</option>
+                <option value="2">Parragraph</option>
+                <option value="3">Multiple choice</option>
+                <option value="4">Checkboxes</option>
+                <option value="5">Drop-down</option>
+                <option value="6">File upload choice</option>
+                <option value="7">Linear scale</option>
+                <option value="8">Multiple-choice grid</option>
+                <option value="9">Tick box grid</option>
+                <option value="10">Date</option>
+                <option value="11">Time</option>
+              </select>
+                <label
                 id="label-answer-type-step-new"
                 for="answer-type-step-new"
                 >Answer type</label
@@ -574,6 +490,7 @@
     modal.show();
   }
 
+  // Modal edit Step
   function openModalEditStep() {
     const content = `
     <div class="modal-header">
@@ -610,26 +527,8 @@
           <textarea class="form-control" id="step-description-edit" name="step-description" rows="3"></textarea>
         </div>
 
-        <div class="col-sm-12 col-md-12 col-lg-6">
-          <div class="input-group">
-            <span class="input-group-text"
-              ><i class="fa-solid fa-circle-chevron-down"></i
-            ></span>
-            <div class="form-floating">
-              <input
-                class="form-control"
-                type="input"
-                placeholder="Type"
-                id="type-step-edit" /><label
-                id="label-type-step-edit"
-                for="type-step-edit"
-                >Type</label
-              >
-            </div>
-          </div>
-        </div>
 
-        <div class="col-sm-12 col-md-12 col-lg-6">
+        <div class="col-sm-12 col-md-12 col-lg-4">
           <div class="input-group">
             <span class="input-group-text"
               ><i class="fa-solid fa-circle-chevron-right"></i
@@ -648,7 +547,7 @@
           </div>
         </div>
 
-        <div class="col-sm-12 col-md-12 col-lg-6">
+        <div class="col-sm-12 col-md-12 col-lg-4">
           <div class="input-group">
             <span class="input-group-text"
               ><i class="fa-solid fa-question"></i
@@ -667,17 +566,29 @@
           </div>
         </div>
 
-        <div class="col-sm-12 col-md-12 col-lg-6">
+        <div class="col-sm-12 col-md-12 col-lg-4">
           <div class="input-group">
             <span class="input-group-text"
               ><i class="fa-solid fa-circle-check"></i
             ></span>
             <div class="form-floating">
-              <input
-                class="form-control"
-                type="input"
-                placeholder="Answer type"
-                id="answer-type-step-edit" /><label
+              <select
+                class="form-select"
+                id="answer-type-step-edit" />
+                <option selected>Select type</option>
+                <option value="1">Short answer</option>
+                <option value="2">Parragraph</option>
+                <option value="3">Multiple choice</option>
+                <option value="4">Checkboxes</option>
+                <option value="5">Drop-down</option>
+                <option value="6">File upload choice</option>
+                <option value="7">Linear scale</option>
+                <option value="8">Multiple-choice grid</option>
+                <option value="9">Tick box grid</option>
+                <option value="10">Date</option>
+                <option value="11">Time</option>
+              </select>
+                <label
                 id="label-answer-type-step-edit"
                 for="answer-type-step-edit"
                 >Answer type</label
@@ -685,6 +596,7 @@
             </div>
           </div>
         </div>
+
 
         <div class="col-sm-12 col-md-12 col-lg-6">
           <div class="input-group">
@@ -776,6 +688,7 @@
     modal.show();
   }
 
+  // Modal View step
   function openModalViewStep() {
     const content = `
     <div class="modal-header">
@@ -972,23 +885,27 @@
     modal.show();
   }
 
+  // Reset Form New Form
   function resetForm(departament, title, description) {
-    departament.value = departament.selectedIndex = "initSelect";
+    departament.value = "";
     title.value = "";
     description.value = "";
   }
 
+  // Reset Form New Step
   function resetFormStep() {
     const formNewStep = document.getElementById("add-New-step-Form");
     return formNewStep.reset();
   }
 
+  // Set styles cell in tables
   const setCellStyles = (cell, maxWidth) => {
     cell.style.maxWidth = maxWidth;
     cell.style.overflow = "hidden";
     cell.style.whiteSpace = "normal";
   };
 
+  // create cells in table
   const createTableCell = (maxWidth, textContent = "") => {
     const cell = document.createElement("td");
     setCellStyles(cell, maxWidth);
@@ -996,6 +913,7 @@
     return cell;
   };
 
+  // create buttons and append in table
   function createAndAppendButtons(
     formDescriptionCell,
     formDescription,
@@ -1008,7 +926,7 @@
     const buttonContainer = document.createElement("div");
     buttonContainer.style.display = "flex";
 
-    // Función auxiliar para crear un botón
+    // function callback to create button
     function createButton(classes, iconClass, marginRight, displayStyle) {
       const button = document.createElement("button");
       button.classList.add(...classes);
@@ -1020,30 +938,35 @@
       return button;
     }
 
+    // create button expand and set style
     const expandButton = createButton(
       ["btn", "btn-warning"],
       "fa-solid fa-chevron-down",
       "2px",
       "block"
     );
+    // create event to expand button
     expandButton.addEventListener("click", () => {
       formDescriptionCell.textContent = formDescription;
       expandButton.style.display = "none";
       collapseButton.style.display = "block";
     });
 
+    // create button collapse and set style
     const collapseButton = createButton(
       ["btn", "btn-warning"],
       "fa-solid fa-chevron-up",
       "2px",
       "none"
     );
+    // create event to collapse button
     collapseButton.addEventListener("click", () => {
       formDescriptionCell.textContent = truncatedDescription;
       collapseButton.style.display = "none";
       expandButton.style.display = "block";
     });
 
+    // create button select and set style
     const selectButton = createButton(
       ["btn", "btn-primary", classSelect],
       "fa-solid fa-square-check",
@@ -1051,6 +974,7 @@
       "block"
     );
 
+    // create button edit and set style
     const editButton = createButton(
       ["btn", "btn-success", classEdit],
       "fa-solid fa-edit",
@@ -1058,6 +982,7 @@
       "block"
     );
 
+    // create button delete and set style
     const deleteButton = createButton(
       ["btn", "btn-danger", classDelete],
       "fa-solid fa-trash",
@@ -1065,6 +990,7 @@
       "block"
     );
 
+    // append buttons in container
     [
       expandButton,
       collapseButton,
@@ -1075,9 +1001,11 @@
       buttonContainer.appendChild(btn);
     });
 
+    // append container in cell
     formActionsCell.appendChild(buttonContainer);
   }
 
+  // Function get max step code in table
   function getMaxStepCodeFromTable() {
     const tableBody = document.getElementById("table-body-steps");
     let lastCode = 0;

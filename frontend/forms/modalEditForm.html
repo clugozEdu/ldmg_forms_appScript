@@ -1,45 +1,47 @@
 <script>
+  // Variable to store the id from MySQL for the form
   let idMysqlForm;
 
+  // Event handler function for when the edit button is clicked for a form
   function handleEditButtonClickFormEdit(event) {
+    // Open the modal to edit the form
     openModalEditForm();
-    createOptionsForSelects(arrayTitleDescription, "edit-departament-forms");
 
+    // Create options for the form's select element based on arrayTitleDescription
+    createDepartamentList(arrayTitleDescription, "list-edit-departament-forms");
+
+    // Get the button that triggered the event and its closest table row
     const button = event.currentTarget;
     const row = button.closest("tr");
 
+    // Extract necessary data from the row
     const dataRow = row.querySelectorAll("td");
     const dataDepartament = dataRow[0].textContent;
     const dataFormId = dataRow[1].textContent;
     const dataColumnDescription = dataRow[2].textContent;
     const formId = dataRow[3].dataset.id;
 
+    // Store the form's id for later use
     idMysqlForm = formId;
 
-    let selectedDepartament = [];
-
+    // Loop through objectForms to get details of the selected form
     objectForms.forEach((forms) => {
       if (formId === forms.mySQLId) {
         document.getElementById("edit-title-forms").value = dataFormId;
         document.getElementById("edit-description-forms").value =
           forms.formDescription;
-        selectedDepartament.push(forms.formDepartmentTitle);
-      }
-    });
-
-    arrayTitleDescription.forEach((departament, index) => {
-      if (selectedDepartament[0] === departament) {
         document.getElementById("edit-departament-forms").value =
-          document.getElementById("edit-departament-forms").selectedIndex =
-            index;
+          forms.formDepartmentTitle;
       }
     });
 
+    // Remove any old event listener and add a new one for saving the edited form
     const buttonAddFormModal = document.getElementById("save-form-edit");
     buttonAddFormModal.removeEventListener("click", saveEditForm);
     buttonAddFormModal.addEventListener("click", saveEditForm);
   }
 
+  // Initialize the event listeners for all edit buttons
   function initEventButtonEdit() {
     const editButtons = document.querySelectorAll(".btn-edit");
     editButtons.forEach((button) => {
@@ -48,27 +50,29 @@
     });
   }
 
-  // La función saveEditForm sigue siendo la misma
+  // Function to save changes made to a form
   function saveEditForm() {
+    // Show a loading indication
     showLoading();
-    const idDepartament = document.getElementById("edit-departament-forms");
-    const selectedIndex = idDepartament.selectedIndex;
-    const selectedOption = idDepartament.options[selectedIndex].text;
-
+    // Extract values from the form fields
+    const idDepartament = document.getElementById(
+      "edit-departament-forms"
+    ).value;
     const title = document.getElementById("edit-title-forms");
     const titleForm = title.value;
-
     const description = document.getElementById("edit-description-forms");
     const descriptionForm = description.value;
 
     let departamentIdMysql;
 
+    // Loop through objectDepartamentList to get the department's id from MySQL
     objectDepartamentList.forEach((departament) => {
-      if (departament.departament === selectedOption) {
+      if (departament.departament === idDepartament) {
         departamentIdMysql = departament.idMysql;
       }
     });
 
+    // Create an object with the edited form's details
     const editForm = {
       formId: idMysqlForm,
       formDepartmentId: departamentIdMysql,
@@ -76,6 +80,7 @@
       title: titleForm,
     };
 
+    // Call the 'updateForm' function from google.script.run to save the edited form
     google.script.run
       .withSuccessHandler((data) => {
         if (data?.length > 0) {
@@ -93,6 +98,7 @@
           const modalIntance = bootstrap.Modal.getInstance(modal);
           modalIntance.hide();
         } else {
+          // If the form was successfully saved, show a success message
           hiddenLoading();
           swalWithBootstrapButtons.fire({
             title: "Error!",

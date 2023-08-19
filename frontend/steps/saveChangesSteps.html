@@ -1,0 +1,82 @@
+<script>
+  // Flag to check if there was an error
+  let flagError = false;
+
+  // Add an event listener for all clicks on the document
+  document.addEventListener("click", function (event) {
+    // Check if the clicked element matches the ID "#save-forms-allStep"
+    if (event.target.matches("#save-forms-allStep")) {
+      // For each step in stepNewObject, delete the originalCode property
+      showLoading();
+
+      flagError = false;
+
+      stepNewObject.forEach((step) => {
+        delete step.originalCode;
+      });
+
+      if (stepsEditObject.length > 0) {
+        google.script.run.withSuccessHandler().updateSteps(stepsEditObject);
+      }
+
+      // If there are items in stepNewObject, add new steps and alert the result
+      if (stepNewObject.length > 0) {
+        google.script.run
+          .withSuccessHandler((data) => {
+            if (data == null) {
+              flagError = true;
+            }
+          })
+          .addNewSteps(stepNewObject);
+      }
+
+      // If there are items in arrayCodeModified, run the stepsOrderMaker function
+      if (arrayCodeModified.length > 0) {
+        google.script.run
+          .withSuccessHandler()
+          .stepsOrderMaker(arrayCodeModified);
+      }
+
+      // If there are items in arrayDeleteStep, run the deleteSteps function
+      if (arrayDeleteStep.length > 0) {
+        google.script.run.withSuccessHandler().deleteSteps(arrayDeleteStep);
+      }
+
+      // Update the table for steps edit
+      if (!flagError) {
+        google.script.run
+          .withSuccessHandler((object) => {
+            // If the returned object has items, set the data in the table
+            if (object?.length > 0) {
+              objectStep = object;
+              setDataInTable(object);
+
+              // reset arrays
+              arrayCodeModified = [];
+              arrayDeleteStep = [];
+              stepNewObject = [];
+              stepsEditObject = [];
+            } else {
+              flagError = true;
+            }
+            handleCompletion();
+          })
+          .getAFormStepsList(idSelected); // Get the list of form steps for the selected ID
+      } else {
+        handleCompletion();
+      }
+    }
+  });
+
+  function handleCompletion() {
+    hiddenLoading();
+    if (flagError) {
+      swalWithBootstrapButtons.fire({
+        title: "Error!",
+        html: `<P>An error occurred while saving, try again</P>`,
+        icon: "error",
+        confirmButtonText: "Ok",
+      });
+    }
+  }
+</script>
