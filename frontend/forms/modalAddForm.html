@@ -75,13 +75,16 @@
               const modalIntance = bootstrap.Modal.getInstance(modal);
               modalIntance.hide();
             }
-
-            // Reload the forms after a delay of 3 seconds
-            setTimeout(() => {
-              loadForms();
-            }, 3000);
-
-            departamentElement.innerHTML = "";
+            // Using the resetForm function to clear the search inputs
+            resetForm(
+              inputSearchIdDepartament,
+              inputSearchId,
+              inputSearchDescription
+            );
+            // Change Object global forms for new object send to BD
+            objectForms = data;
+            // Reload table forms
+            createDataTable(objectForms);
           } else {
             // If there's no returned data, hide the loading animation and show an error message
             hiddenLoading();
