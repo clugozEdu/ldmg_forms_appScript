@@ -36,14 +36,13 @@
     modal.tabIndex = -1;
     modal.setAttribute("aria-labelledby", `${id}Label`);
     modal.setAttribute("aria-hidden", "true");
-    modal.setAttribute("data-bs-backdrop", "static");
     modal.setAttribute("data-bs-keyboard", "false");
 
     const modalDialog = document.createElement("div");
     modalDialog.className = "modal-dialog modal-dialog-centered";
 
     const modalContent = document.createElement("div");
-    modalContent.className = "modal-content shadow-lg";
+    modalContent.className = "modal-content shadow-lg border border-0";
 
     modalContent.innerHTML = content;
 
@@ -54,7 +53,7 @@
     document.body.appendChild(modal);
   }
 
-  // create modal to add new form
+  // create modal to for full screen
   function createModalFullScreen(id, title, content) {
     const modal = document.createElement("div");
     modal.className = "modal fade";
@@ -62,14 +61,13 @@
     modal.tabIndex = -1;
     modal.setAttribute("aria-labelledby", `${id}Label`);
     modal.setAttribute("aria-hidden", "true");
-    modal.setAttribute("data-bs-backdrop", "static");
     modal.setAttribute("data-bs-keyboard", "false");
 
     const modalDialog = document.createElement("div");
     modalDialog.className = "modal-dialog modal-xl custom-modal-fullscreen";
 
     const modalContent = document.createElement("div");
-    modalContent.className = "modal-content";
+    modalContent.className = "modal-content shadow-lg border border-0";
 
     // Header del modal
     const modalHeader = document.createElement("div");

@@ -21,7 +21,6 @@
       stepCode: dataRow[0].textContent,
       title: document.getElementById("title-step-edit").value,
       description: document.getElementById("step-description-edit").value,
-      type: document.getElementById("type-step-edit").value,
       action: document.getElementById("action-step-edit").value,
       question: document.getElementById("question-step-edit").value,
       answerType: document.getElementById("answer-type-step-edit").value,
@@ -81,7 +80,6 @@
         const mapping = {
           "title-step-edit": steps.stepTitle,
           "step-description-edit": steps.descriptions,
-          "type-step-edit": steps.type,
           "action-step-edit": steps.action,
           "question-step-edit": steps.question,
           "answer-type-step-edit": steps.answerType,
@@ -91,14 +89,26 @@
           "answer-4-step-edit": steps.answer4,
         };
 
-        // Populate the modal's input fields with the step's data
+        // Populate the input fields in the modal with the step's data
         for (const key in mapping) {
           const element = mapping[key];
-          const input = document.getElementById(key);
-          if (element !== undefined) {
-            input.value = element;
+          const inputOrSelect = document.getElementById(key);
+
+          if (inputOrSelect.tagName === "SELECT") {
+            // If it's a select element
+            for (let i = 0; i < inputOrSelect.options.length; i++) {
+              if (inputOrSelect.options[i].text === element) {
+                inputOrSelect.selectedIndex = i;
+                break;
+              }
+            }
           } else {
-            input.value = "";
+            // If it's an input element
+            if (element !== undefined) {
+              inputOrSelect.value = element;
+            } else {
+              inputOrSelect.value = "";
+            }
           }
         }
       }

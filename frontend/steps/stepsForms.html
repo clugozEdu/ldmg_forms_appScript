@@ -14,18 +14,49 @@
         // Open the modal to select the form
         openModalSelectedForm();
 
+        // Clear the table body
+        const tableBody = document.getElementById("table-body-steps");
+        tableBody.innerHTML = "";
+
         const row = button.closest("tr");
         const rowData = row.querySelectorAll("td");
 
         idSelected = rowData[3].dataset.id;
-        console.log(idSelected);
 
         // Fetch form steps data from the server using google.script.run
         google.script.run
           .withSuccessHandler((object) => {
             // Store the steps in the objectStep variable and display them in the table
-            objectStep = object;
-            setDataInTable(object);
+            if (object?.length > 0) {
+              objectStep = object;
+              setDataInTable(object);
+
+              return;
+            } else {
+              // Hide the loading animation
+              hiddenLoading();
+              // init all events for add new step
+              setDataInTable(object);
+              swalWithBootstrapButtons.fire({
+                title: "Information!",
+                html: `<P>Form does not contain steps</P>`,
+                icon: "warning",
+                backdrop: false,
+                confirmButtonText: "Ok",
+              });
+            }
+          })
+          .withFailureHandler((error) => {
+            // Hide the loading animation
+            hiddenLoading();
+            // Show an error message
+            swalWithBootstrapButtons.fire({
+              title: "Error!",
+              html: `<P>${error} DB connection error try again</P>`,
+              icon: "error",
+              backdrop: false,
+              confirmButtonText: "Ok",
+            });
           })
           .getAFormStepsList(idSelected);
       });
@@ -112,8 +143,8 @@
       // Show the modal to add a new step and set up other UI elements
       openModalAddStep();
 
-      const footerModal = document.getElementById("footer-modal-step");
-      footerModal.style.display = "block";
+      // const footerModal = document.getElementById("footer-modal-step");
+      // footerModal.style.display = "block";
 
       const buttonSaveStep = document.getElementById("save-form-new-step");
 
@@ -182,47 +213,74 @@
   // Implement drag and drop functionality for the steps table
   function dragDropTable() {
     let draggedItem = null;
+    let insertAfter = false;
 
     document.querySelectorAll("#table-form-steps tbody tr").forEach((row) => {
       row.setAttribute("draggable", true);
 
-      // Evento cuando se inicia el arrastre
       row.addEventListener("dragstart", function (e) {
         draggedItem = this;
+
+        // Force style when row is selected
+        draggedItem.style.cssText = "background-color: #007BFF !important;"; // Bright blue
+
         setTimeout(() => {
           draggedItem.classList.add("dragging");
-          draggedItem.style.opacity = "0.8"; // Ligeramente transparente
+          draggedItem.style.opacity = "0.8";
         }, 0);
       });
 
-      // Evento cuando el elemento arrastrado es soltado
       row.addEventListener("dragend", function (e) {
         setTimeout(() => {
           draggedItem.classList.remove("dragging");
-          draggedItem.style.opacity = "1"; // Restaurar opacidad
+          draggedItem.style.opacity = "1";
+          draggedItem.style.backgroundColor = ""; // Restore background
           draggedItem = null;
           updateStepCodes();
         }, 0);
       });
 
-      // Evento necesario para permitir el drop
       row.addEventListener("dragover", function (e) {
         e.preventDefault();
-        this.classList.add("highlighted"); // Resaltado de fila de destino
+
+        // Determine if we're in the top or bottom half of the row
+        const rect = this.getBoundingClientRect();
+        const y = e.clientY - rect.top;
+        insertAfter = y > rect.height / 2;
+
+        // Add styles depending on the position
+        if (insertAfter) {
+          this.style.borderBottom = "3px solid #003366"; // Dark blue bottom border
+          this.style.borderTop = "";
+        } else {
+          this.style.borderTop = "3px solid #003366"; // Dark blue top border
+          this.style.borderBottom = "";
+        }
       });
 
-      // Evento cuando un elemento no está sobre la fila
       row.addEventListener("dragleave", function (e) {
-        this.classList.remove("highlighted"); // Restaurar fondo original
+        this.style.borderTop = "";
+        this.style.borderBottom = "";
       });
 
-      // Evento cuando se suelta un elemento
       row.addEventListener("drop", function (e) {
         e.preventDefault();
-        this.classList.remove("highlighted"); // Restaurar fondo original
+        this.style.borderTop = "";
+        this.style.borderBottom = "";
 
-        if (draggedItem !== null) {
-          this.parentNode.insertBefore(draggedItem, this);
+        if (draggedItem) {
+          if (insertAfter) {
+            if (this.nextElementSibling) {
+              this.parentNode.insertBefore(
+                draggedItem,
+                this.nextElementSibling
+              );
+            } else {
+              this.parentNode.appendChild(draggedItem);
+            }
+          } else {
+            this.parentNode.insertBefore(draggedItem, this);
+          }
         }
       });
     });

@@ -498,3 +498,127 @@ const stepsOrderMaker = (stepsOrderArray) => {
     return;
   }
 };
+
+function mainstep(arrayObject) {
+  // const url = "jdbc:mysql://160.153.133.149:3306/brains";
+  // const conn = Jdbc.getConnection(url, "lxwb4uimofyb", "Ldm-group1*");
+  // const conn = await getDBCon();
+  const conn = Jdbc.getConnection(mainURL, username, password);
+  const statement = conn.createStatement();
+  const orderSteps = arrayObject.orderSteps;
+  const addsteps = arrayObject.addsteps;
+  const deletesteps = arrayObject.deletesteps;
+  const updatesteps = arrayObject.updatesteps;
+  const formID = arrayObject.formID;
+
+  if (statement === undefined || statement === null) return null;
+
+  // add steps
+
+  if (addsteps.length !== 0) {
+    const userId = getDataFromMySQLTable(
+      "contactID",
+      "tbl_contact",
+      "workemail",
+      `${Session.getActiveUser().getEmail()}`
+    )[0][0];
+
+    if (!userId)
+      return `${Session.getActiveUser().getEmail()} is not added to the Contact List Yet`;
+
+    for (let newStepInfos of addsteps) {
+      let formID = newStepInfos.mySQLFormId;
+      let title = newStepInfos.title;
+      let description = newStepInfos.description;
+      let order = newStepInfos.stepCode;
+      let type = newStepInfos.type;
+      let action = newStepInfos.action;
+      let question = newStepInfos.question;
+      let answerType = newStepInfos.answerType;
+      let answer1 = newStepInfos.answer1;
+      let answer2 = newStepInfos.answer2;
+      let answer3 = newStepInfos.answer3;
+      let answer4 = newStepInfos.answer4;
+      let photo1 = newStepInfos.photo1;
+      let photo2 = newStepInfos.photo2;
+      let photo3 = newStepInfos.photo3;
+      let video1 = newStepInfos.video1;
+      let video2 = newStepInfos.video2;
+      let video3 = newStepInfos.video3;
+      let status = newStepInfos.status;
+      let checked = `${newStepInfos.checked.checked}` === "true" ? "1" : "0";
+      let background = newStepInfos.background;
+
+      statement.execute(
+        `INSERT INTO tbl_step (stepID,functionID, orders,title,descriptions,type,Action,	Question,AnswerType,Answer1,Answer2,Answer3,Answer4,photo1,photo2,photo3,video1,video2,video3,trainee,status,checked,background) VALUES('${generatesRandomId()}','${formID}','${order}','${title}','${description}','${type}','${action}','${question}','${answerType}','${answer1}','${answer2}','${answer3}','${answer4}','${photo1}','${photo2}','${photo3}','${video1}','${video2}','${video3}','${userId}','${status}','${checked}','${background}');`
+      );
+    }
+  }
+
+  // delete steps
+
+  if (deletesteps.length !== 0) {
+    for (let mySQLstepId of deletesteps) {
+      const checker = existsInTblFunction(
+        "tbl_step",
+        "stepID",
+        `${mySQLstepId}`
+      );
+      if (checker === false)
+        return `the given Step SQLId is not found in the Database`;
+
+      statement.executeUpdate(
+        `UPDATE tbl_step SET status='${5}' WHERE stepID='${mySQLstepId}';`
+      );
+    }
+  }
+
+  // update steps
+
+  if (updatesteps.length !== 0) {
+    for (let stepInfos of updatesteps) {
+      let stepID = stepInfos.mySQLstepId;
+      let title = stepInfos.title;
+      let description = stepInfos.description;
+      let order = stepInfos.stepCode;
+      let type = stepInfos.type;
+      let action = stepInfos.action;
+      let question = stepInfos.question;
+      let answerType = stepInfos.answerType;
+      let answer1 = stepInfos.answer1;
+      let answer2 = stepInfos.answer2;
+      let answer3 = stepInfos.answer3;
+      let answer4 = stepInfos.answer4;
+      let photo1 = stepInfos.photo1;
+      let photo2 = stepInfos.photo2;
+      let photo3 = stepInfos.photo3;
+      let video1 = stepInfos.video1;
+      let video2 = stepInfos.video2;
+      let video3 = stepInfos.video3;
+      let status = stepInfos.status;
+      let checked = `${stepInfos.checked}` === "true" ? "1" : "0";
+      let background = stepInfos.background;
+
+      //const checker = existsInTblFunction('tbl_step', 'stepID', `${stepID}`);
+      //if (checker === false) return `the given Step SQLId is not found in the Database`;
+
+      statement.executeUpdate(
+        `UPDATE tbl_step SET title='${title}',descriptions='${description}',orders='${order}',Action='${action}',type='${type}',Question='${question}',AnswerType="${answerType}",Answer1="${answer1}",Answer2='${answer2}',Answer3='${answer3}',Answer4='${answer4}',photo1='${photo1}',photo2="${photo2}",photo3="${photo3}",status='${status}',video1='${video1}',video2='${video2}',video3='${video3}',checked='${checked}',background='${background}' WHERE stepID='${stepID}';`
+      );
+    }
+  }
+
+  //  order steps
+
+  if (orderSteps.length !== 0) {
+    for (let data of orderSteps) {
+      statement.executeUpdate(
+        `UPDATE tbl_step SET orders='${data["stepCode"]}' WHERE stepID='${data["idStepMySQL"]}';`
+      );
+    }
+  }
+
+  statement.close();
+  conn.close();
+  return getAFormStepsList(formID);
+}

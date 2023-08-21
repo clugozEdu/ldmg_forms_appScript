@@ -15,56 +15,58 @@
         delete step.originalCode;
       });
 
-      if (stepsEditObject.length > 0) {
-        google.script.run.withSuccessHandler().updateSteps(stepsEditObject);
-      }
+      // create Object for send to BD
+      const dataSend = {
+        addsteps: stepNewObject,
+        deletesteps: arrayDeleteStep,
+        updatesteps: stepsEditObject,
+        orderSteps: arrayCodeModified,
+        formID: idSelected,
+      };
 
-      // If there are items in stepNewObject, add new steps and alert the result
-      if (stepNewObject.length > 0) {
-        google.script.run
-          .withSuccessHandler((data) => {
-            if (data == null) {
-              flagError = true;
-            }
-          })
-          .addNewSteps(stepNewObject);
-      }
+      // Handler for send data to BD
+      google.script.run
+        .withSuccessHandler((data) => {
+          // If the returned data has items, show a success message
+          if (data?.length > 0) {
+            swalWithBootstrapButtons.fire({
+              title: "Excellent!",
+              html: `<P>The form has been successfully saved</P>`,
+              icon: "success",
+              confirmButtonText: "Ok",
+            });
 
-      // If there are items in arrayCodeModified, run the stepsOrderMaker function
-      if (arrayCodeModified.length > 0) {
-        google.script.run
-          .withSuccessHandler()
-          .stepsOrderMaker(arrayCodeModified);
-      }
-
-      // If there are items in arrayDeleteStep, run the deleteSteps function
-      if (arrayDeleteStep.length > 0) {
-        google.script.run.withSuccessHandler().deleteSteps(arrayDeleteStep);
-      }
-
-      // Update the table for steps edit
-      if (!flagError) {
-        google.script.run
-          .withSuccessHandler((object) => {
-            // If the returned object has items, set the data in the table
-            if (object?.length > 0) {
-              objectStep = object;
-              setDataInTable(object);
-
-              // reset arrays
-              arrayCodeModified = [];
-              arrayDeleteStep = [];
-              stepNewObject = [];
-              stepsEditObject = [];
-            } else {
-              flagError = true;
-            }
-            handleCompletion();
-          })
-          .getAFormStepsList(idSelected); // Get the list of form steps for the selected ID
-      } else {
-        handleCompletion();
-      }
+            // set objetStep in new data
+            objectStep = data;
+            // Update table with new data
+            setDataInTable(objectStep);
+            // Clear all arrays
+            arrayCodeModified = [];
+            arrayDeleteStep = [];
+            stepNewObject = [];
+            stepsEditObject = [];
+          } else {
+            // Hide the loading animation or screen and show an error message
+            hiddenLoading();
+            swalWithBootstrapButtons.fire({
+              title: "Error!",
+              html: `<P>There was an error saving the form</P>`,
+              icon: "error",
+              confirmButtonText: "Ok",
+            });
+          }
+        })
+        .withFailureHandler((error) => {
+          // Hide the loading animation or screen and show an error message
+          hiddenLoading();
+          swalWithBootstrapButtons.fire({
+            title: "Error!",
+            html: `<P>${error} DB connection error try again</P>`,
+            icon: "error",
+            confirmButtonText: "Ok",
+          });
+        })
+        .mainstep(dataSend);
     }
   });
 

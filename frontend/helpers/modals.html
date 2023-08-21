@@ -2,12 +2,12 @@
   // Modal New Form
   function openModalNewForm() {
     const content = `
-    <div class="modal-header">
+    <div class="modal-header bg-primary" style="color: #fff">
       <div class="col-11 text-center">
         <h1 class="modal-title newForm_title fs-5" id="newFormModalLabel">Add New Form</h1>
       </div>
       <div class="col-1 text-center">
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
     </div>
     <div class="modal-body">
@@ -66,8 +66,12 @@
     </div>
   `;
     createModal("new-form-modal", "New Form Modal", content);
+    const modalOptions = {
+      backdrop: false,
+    };
     const modal = new bootstrap.Modal(
-      document.getElementById("new-form-modal")
+      document.getElementById("new-form-modal"),
+      modalOptions
     );
     modal.show();
   }
@@ -75,12 +79,12 @@
   // Modal Edit Form
   function openModalEditForm() {
     const content = `
-    <div class="modal-header">
+    <div class="modal-header bg-success" style="color: #fff">
       <div class="col-11 text-center">
         <h1 class="modal-title newForm_title fs-5">EDIT FORM</h1>
       </div>
       <div class="col-1 text-center">
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
     </div>
     <div class="modal-body">
@@ -134,13 +138,17 @@
       </form>
     </div>
     <div class="modal-footer">
-        <button type="submit" id="save-form-edit" class="btn btn-primary">Save changes</button>
+        <button type="submit" id="save-form-edit" class="btn btn-success">Save changes</button>
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
     </div>
   `;
     createModal("edit-form-modal", "Edit Modal", content);
+    const modalOptions = {
+      backdrop: false,
+    };
     const modal = new bootstrap.Modal(
-      document.getElementById("edit-form-modal")
+      document.getElementById("edit-form-modal"),
+      modalOptions
     );
     modal.show();
   }
@@ -192,12 +200,12 @@
   // Modal Add Step
   function openModalAddStep() {
     const content = `
-    <div class="modal-header">
+    <div class="modal-header bg-primary" style="color: #fff">
       <div class="col-11 text-center">
         <h1 class="modal-title newForm_title fs-5" id="title-modal-step">Add New Step</h1>
       </div>
       <div class="col-1 text-center">
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
     </div>
     <div class="modal-body">
@@ -380,19 +388,25 @@
     </div>
   `;
     createModal("new-form-step", "New Step Form", content);
-    const modal = new bootstrap.Modal(document.getElementById("new-form-step"));
+    const modalOptions = {
+      backdrop: false,
+    };
+    const modal = new bootstrap.Modal(
+      document.getElementById("new-form-step"),
+      modalOptions
+    );
     modal.show();
   }
 
   // Modal edit Step
   function openModalEditStep() {
     const content = `
-    <div class="modal-header">
+    <div class="modal-header bg-success" style="color: #fff">
       <div class="col-11 text-center">
         <h1 class="modal-title newForm_title fs-5" id="title-modal-step">Edit Step</h1>
       </div>
       <div class="col-1 text-center">
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
     </div>
     <div class="modal-body">
@@ -571,13 +585,17 @@
       </form>
     </div>
     <div class="modal-footer" id="footer-modal-step">
-        <button type="submit" id="edit-step" class="btn btn-primary">Save Step</button>
+        <button type="submit" id="edit-step" class="btn btn-success">Save changes</button>
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
     </div>
   `;
     createModal("edit-form-step", "Edit Step Form", content);
+    const modalOptions = {
+      backdrop: false,
+    };
     const modal = new bootstrap.Modal(
-      document.getElementById("edit-form-step")
+      document.getElementById("edit-form-step"),
+      modalOptions
     );
     modal.show();
   }
@@ -585,12 +603,12 @@
   // Modal View step
   function openModalViewStep() {
     const content = `
-    <div class="modal-header">
+    <div class="modal-header bg-primary" style="color: #fff">
       <div class="col-11 text-center">
         <h1 class="modal-title newForm_title fs-5" id="title-modal-step">View Step</h1>
       </div>
       <div class="col-1 text-center">
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
     </div>
     <div class="modal-body">
@@ -619,26 +637,7 @@
           <textarea class="form-control" id="step-description-view" name="step-description" rows="3"></textarea>
         </div>
 
-        <div class="col-sm-12 col-md-12 col-lg-6">
-          <div class="input-group">
-            <span class="input-group-text"
-              ><i class="fa-solid fa-circle-chevron-down"></i
-            ></span>
-            <div class="form-floating">
-              <input
-                class="form-control"
-                type="input"
-                placeholder="Type"
-                id="type-step-view" /><label
-                id="label-type-step-view"
-                for="type-step-view"
-                >Type</label
-              >
-            </div>
-          </div>
-        </div>
-
-        <div class="col-sm-12 col-md-12 col-lg-6">
+        <div class="col-sm-12 col-md-12 col-lg-3">
           <div class="input-group">
             <span class="input-group-text"
               ><i class="fa-solid fa-circle-chevron-right"></i
@@ -657,7 +656,7 @@
           </div>
         </div>
 
-        <div class="col-sm-12 col-md-12 col-lg-6">
+        <div class="col-sm-12 col-md-12 col-lg-3">
           <div class="input-group">
             <span class="input-group-text"
               ><i class="fa-solid fa-question"></i
@@ -676,7 +675,7 @@
           </div>
         </div>
 
-        <div class="col-sm-12 col-md-12 col-lg-6">
+        <div class="col-sm-12 col-md-12 col-lg-3">
           <div class="input-group">
             <span class="input-group-text"
               ><i class="fa-solid fa-circle-check"></i
@@ -775,7 +774,13 @@
     </div>
   `;
     createModal("view-step", "View Step Form", content);
-    const modal = new bootstrap.Modal(document.getElementById("view-step"));
+    const modalOptions = {
+      backdrop: false,
+    };
+    const modal = new bootstrap.Modal(
+      document.getElementById("view-step"),
+      modalOptions
+    );
     modal.show();
   }
 </script>
