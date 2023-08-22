@@ -60,6 +60,29 @@
         });
       })
       .getDepartmentsList();
+
+    // Handler for get departament list ID
+    google.script.run
+      .withSuccessHandler((object) => {
+        // Create datalist for input serch departament ID
+        createDepartamentList(object, "list-departament-forms-search");
+      })
+      .withFailureHandler((error) => {
+        hiddenLoading();
+        //alert error
+        swalWithBootstrapButtons.fire({
+          title: "Error!",
+          html: `<P>${error} Reload again</P>`,
+          icon: "error",
+          confirmButtonText: "Ok",
+        });
+      })
+      .getDepartmentsIDList();
+  };
+
+  // get list departament ID
+  const getListDepartamentId = (idDepartament) => {
+    console.log(idDepartament);
   };
 
   // get list departament
@@ -84,7 +107,7 @@
 
       // create tables cells
       const formIdDepartament = createTableCell("25%", form.formDeptID);
-      const formIdCell = createTableCell("25%", form.formId);
+      const formIdCell = createTableCell("25%", form.formTitle);
       const formActionsCell = createTableCell("15%");
       formActionsCell.dataset.id = form.mySQLId;
       // truncate description cell

@@ -9,6 +9,19 @@ const Database_Name = "brain";
 const Database_username = "dev_alldzdef";
 const Database_password = "dev_all_ldm04zzeftt";
 const Port_number = "3306";
+const URL = `jdbc:mysql://160.153.133.149:3306/brains`;
+
+// You need to change this parameters in production
+const host = "160.153.133.149";
+const mainDB = "brains";
+const port = 3306;
+const mainURL = `jdbc:mysql://${host}:${port}/${mainDB}`;
+const username = "lxwb4uimofyb";
+const password = "Ldm-group1*";
+// const conn = Jdbc.getConnection(mainURL, username, password)
+
+// const url = "jdbc:mysql://160.153.133.149:3306/brains";
+// const conn = Jdbc.getConnection(url, "lxwb4uimofyb", "Ldm-group1*");
 
 //Dev Welcome Function...
 const hi = () => {
@@ -184,7 +197,7 @@ const setFunctionDataToSheet = () => {
       "1RygKqsJhL2aN10rFnuNXY8cOqegaZH2pPMaPPWcih3s"
     );
     const dataSheet = functionDataSSheet.getSheetByName("DevTest");
-    const conn = getDBCon();
+    const conn = Jdbc.getConnection(mainURL, username, password);
     const statement = conn.createStatement();
     const results = statement.executeQuery(`SELECT * FROM tbl_function`);
     const metaData = results.getMetaData();
@@ -240,7 +253,8 @@ const checkDataFromMySQLTable = (
 ) => {
   try {
     //Utilities.sleep(1000);
-    const conn = getDBCon();
+    // const conn = getDBCon();
+    const conn = Jdbc.getConnection(mainURL, username, password);
     const statement = conn.createStatement();
     let query = statement.executeQuery(
       `SELECT * FROM ${searchTableName} WHERE ${searchColumnName}='${searchColumnValue}'`
@@ -278,7 +292,8 @@ const getDataFromMySQLTable = (
   searchColumnValue
 ) => {
   try {
-    const conn = getDBCon();
+    // const conn = getDBCon();
+    const conn = Jdbc.getConnection(mainURL, username, password);
     const statement = conn.createStatement();
     let query = statement.executeQuery(
       `SELECT ${searchValues} FROM ${searchTableName} WHERE ${searchColumnName}='${searchColumnValue}'`
@@ -314,7 +329,8 @@ const getDataFromMySQLTableWithNullCond = (
   searchColumnValue
 ) => {
   try {
-    const conn = getDBCon();
+    // const conn = getDBCon();
+    const conn = Jdbc.getConnection(mainURL, username, password);
     const statement = conn.createStatement();
     let query = statement.executeQuery(
       `SELECT ${searchValues} FROM ${searchTableName} WHERE ${searchColumnName1}='${searchColumnValue}' AND ${searchColumnName2} IS NOT NULL`
@@ -360,7 +376,8 @@ const existsInTblFunction = (
 //Function to Delete A record from a given table in MySQL by its ID...
 const deleteRecordfromSQL = (tableName, idColumnName, recordId) => {
   try {
-    const conn = getDBCon();
+    // const conn = getDBCon();
+    const conn = Jdbc.getConnection(mainURL, username, password);
     const statement = conn.createStatement();
     statement.executeUpdate(
       `DELETE FROM ${tableName} WHERE ${idColumnName}='${recordId}';`
@@ -373,4 +390,49 @@ const deleteRecordfromSQL = (tableName, idColumnName, recordId) => {
     console.log(`deleteRecordfromSQLError: ${error.message}`);
     return;
   }
+};
+
+const escapeForMySQL = (inputString) => {
+  return inputString.replace(/['"\\;`%&<>(){}*$!_]/g, function (match) {
+    switch (match) {
+      case "'":
+        return "\\'";
+      case "!":
+        return "\\!";
+      case '"':
+        return '\\"';
+      case "\\":
+        return "\\\\";
+      case ";":
+        return "\\;";
+      case "`":
+        return "\\`";
+      case "%":
+        return "\\%";
+      case "&":
+        return "\\&";
+      case "<":
+        return "\\<";
+      case ">":
+        return "\\>";
+      case "(":
+        return "\\(";
+      case ")":
+        return "\\)";
+      case "{":
+        return "\\{";
+      case "}":
+        return "\\}";
+      case "[":
+        return "\\[";
+      case "_":
+        return "\\_";
+      case "*":
+        return "\\*";
+      case "$":
+        return "\\$";
+      default:
+        return match;
+    }
+  });
 };

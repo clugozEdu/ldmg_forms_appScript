@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 const getScriptUrl = () => {
   const url = ScriptApp.getService().getUrl();
   return url;
@@ -47,7 +45,7 @@ const getFormsList = () => {
     for (let form of functionsData) {
       if (
         `${form[functionsColumnIndexes.type - 1]}` === `24` &&
-        form[functionsColumnIndexes.parentFunctionID - 1] !== "" &&
+        form[functionsColumnIndexes.functionID - 1] !== "" &&
         `${form[functionsColumnIndexes.status - 1]}` !== "10"
       ) {
         let formData = {};
@@ -56,10 +54,11 @@ const getFormsList = () => {
           if (`${formDeptID}` === `${deptData.mySQLId}`) {
             formData["formDepartmentID"] = deptData["mySQLId"];
             formData["formDepartmentTitle"] = deptData["deptTitle"];
-            formData[
-              "formDeptID"
-            ] = `${deptData["deptID"]} ${deptData["deptTitle"]}`;
+            formData["formDeptID"] = `${deptData["deptID"]}`;
             formData["formId"] = `${deptData["deptRefId"]} ${
+              form[functionsColumnIndexes["title"] - 1]
+            }`;
+            formData["formTitle"] = `${
               form[functionsColumnIndexes["title"] - 1]
             }`;
             break;
@@ -184,7 +183,11 @@ const addNewForm = (newFormInfos) => {
     const conn = Jdbc.getConnection(mainURL, username, password);
     const statement = conn.createStatement();
     statement.execute(
-      `INSERT INTO tbl_function (functionID,title,type,status,Descriptions,parentFunctionID,assignor,assignee,functiondate,priority,createdBy,dueDate,notificationChecker,flagChecker,chaseChecker) VALUES('${id}','${title}','${24}','${9}','${description}','${formDepartmentID}','${userId}','${1}','${date}','${1}','${userId}','${date}','${0}','${0}','${0}');`
+      `INSERT INTO tbl_function (functionID,title,type,status,Descriptions,parentFunctionID,assignor,assignee,functiondate,priority,createdBy,dueDate,notificationChecker,flagChecker,chaseChecker) VALUES('${id}',"${escapeForMySQL(
+        title
+      )}",'${24}','${9}',"${escapeForMySQL(
+        description
+      )}","${formDepartmentID}",'${userId}','${1}','${date}','${1}','${userId}','${date}','${0}','${0}','${0}');`
     );
 
     statement.close();
@@ -237,7 +240,6 @@ const addNewForm = (newFormInfos) => {
       .getRange(idRowIndex, functionsColumnIndexes.chaseChecker)
       .setValue(0);
 
-    Utilities.sleep(2000);
     return getFormsList();
   } catch (error) {
     console.log(`addNewFormError: ${error.message}`);
@@ -329,7 +331,11 @@ const updateForm = (formInfos) => {
     const conn = Jdbc.getConnection(mainURL, username, password);
     const statement = conn.createStatement();
     statement.executeUpdate(
-      `UPDATE tbl_function SET title='${title}',Descriptions='${description}',assignor='${userId}',priority='${1}',type='${24}',parentFunctionID='${formDepartmentID}' WHERE functionID='${formID}';`
+      `UPDATE tbl_function SET title="${escapeForMySQL(
+        title
+      )}",Descriptions="${escapeForMySQL(
+        description
+      )}",assignor='${userId}',priority='${1}',type='${24}',parentFunctionID='${formDepartmentID}' WHERE functionID='${formID}';`
     );
 
     statement.close();
@@ -557,7 +563,17 @@ function mainstep(arrayObject) {
       let background = newStepInfos.background;
 
       statement.execute(
-        `INSERT INTO tbl_step (stepID,functionID, orders,title,descriptions,type,Action,	Question,AnswerType,Answer1,Answer2,Answer3,Answer4,photo1,photo2,photo3,video1,video2,video3,trainee,status,checked,background) VALUES('${generatesRandomId()}','${formID}','${order}','${title}','${description}','${type}','${action}','${question}','${answerType}','${answer1}','${answer2}','${answer3}','${answer4}','${photo1}','${photo2}','${photo3}','${video1}','${video2}','${video3}','${userId}','${status}','${checked}','${background}');`
+        `INSERT INTO tbl_step (stepID,functionID, orders,title,descriptions,type,Action,	Question,AnswerType,Answer1,Answer2,Answer3,Answer4,photo1,photo2,photo3,video1,video2,video3,trainee,status,checked,background) VALUES('${generatesRandomId()}',"${formID}",'${order}','${escapeForMySQL(
+          title
+        )}',"${escapeForMySQL(
+          description
+        )}","${type}",'${action}','${escapeForMySQL(
+          question
+        )}','${answerType}','${escapeForMySQL(answer1)}','${escapeForMySQL(
+          answer2
+        )}','${escapeForMySQL(answer3)}','${escapeForMySQL(
+          answer4
+        )}','${photo1}','${photo2}','${photo3}','${video1}','${video2}','${video3}','${userId}','${status}','${checked}','${background}');`
       );
     }
   }
@@ -575,7 +591,7 @@ function mainstep(arrayObject) {
         return `the given Step SQLId is not found in the Database`;
 
       statement.executeUpdate(
-        `UPDATE tbl_step SET status='${5}' WHERE stepID='${mySQLstepId}';`
+        `UPDATE tbl_step SET status="${5}" WHERE stepID='${mySQLstepId}';`
       );
     }
   }
@@ -610,17 +626,28 @@ function mainstep(arrayObject) {
       //if (checker === false) return `the given Step SQLId is not found in the Database`;
 
       statement.executeUpdate(
-        `UPDATE tbl_step SET title='${title}',descriptions='${description}',orders='${order}',Action='${action}',type='${type}',Question='${question}',AnswerType="${answerType}",Answer1="${answer1}",Answer2='${answer2}',Answer3='${answer3}',Answer4='${answer4}',photo1='${photo1}',photo2="${photo2}",photo3="${photo3}",status='${status}',video1='${video1}',video2='${video2}',video3='${video3}',checked='${checked}',background='${background}' WHERE stepID='${stepID}';`
+        `UPDATE tbl_step SET title='${escapeForMySQL(
+          title
+        )}',descriptions='${escapeForMySQL(
+          description
+        )}',orders='${order}',Action='${action}',type='${type}',Question='${escapeForMySQL(
+          question
+        )}',AnswerType="${answerType}",Answer1="${escapeForMySQL(
+          answer1
+        )}",Answer2='${escapeForMySQL(answer2)}',Answer3='${escapeForMySQL(
+          answer3
+        )}',Answer4='${escapeForMySQL(
+          answer4
+        )}',photo1='${photo1}',photo2="${photo2}",photo3="${photo3}",status='${status}',video1='${video1}',video2='${video2}',video3='${video3}',checked='${checked}',background='${background}' WHERE stepID='${stepID}';`
       );
     }
   }
 
   //  order steps
-
   if (orderSteps.length !== 0) {
     for (let data of orderSteps) {
       statement.executeUpdate(
-        `UPDATE tbl_step SET orders='${data["stepCode"]}' WHERE stepID='${data["idStepMySQL"]}';`
+        `UPDATE tbl_step SET orders="${data["stepCode"]}" WHERE stepID='${data["idStepMySQL"]}';`
       );
     }
   }
@@ -629,3 +656,27 @@ function mainstep(arrayObject) {
   conn.close();
   return getAFormStepsList(formID);
 }
+
+//Function to get All Departments ID list...
+const getDepartmentsIDList = () => {
+  try {
+    const functionsData = getSheetContents(functionSheet);
+    const functionsColumnIndexes = getSheetColumnsIndex(functionSheet);
+    const deptIDList = [];
+
+    for (let dept of functionsData) {
+      if (`${dept[functionsColumnIndexes.type - 1]}` === `1`) {
+        deptIDList.push(
+          `${dept[functionsColumnIndexes.ref - 1]} ${
+            dept[functionsColumnIndexes.title - 1]
+          }`
+        );
+      }
+    }
+
+    return deptIDList;
+  } catch (error) {
+    console.log(`getDepartmentsListError: ${error.message}`);
+    return;
+  }
+};
