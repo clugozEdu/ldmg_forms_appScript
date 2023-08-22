@@ -84,12 +84,12 @@
     google.script.run
       .withSuccessHandler((data) => {
         if (data?.length > 0) {
-          swalWithBootstrapButtons.fire({
-            title: "Excellent!",
-            html: `<P>Changes have been saved</P>`,
-            icon: "success",
-            confirmButtonText: "Ok",
-          });
+          // swalWithBootstrapButtons.fire({
+          //   title: "Excellent!",
+          //   html: `<P>Changes have been saved</P>`,
+          //   icon: "success",
+          //   confirmButtonText: "Ok",
+          // });
 
           // Close the edit form modal
           const modal = document.getElementById("edit-form-modal");

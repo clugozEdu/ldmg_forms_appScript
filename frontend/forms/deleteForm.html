@@ -10,59 +10,61 @@
     const title = dataRow[1].textContent;
     const idMysql = dataRow[3].dataset.id;
 
-    // Display a confirmation dialog using swalWithBootstrapButtons
-    swalWithBootstrapButtons
-      .fire({
-        title: "Are you sure?",
-        html: `
-            <strong>You want to delete form:</strong> <p>${title}??</p>
-            `,
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Yes, delete it!",
-        cancelButtonText: "No, cancel!",
-      })
-      .then((result) => {
-        // If the user confirms the deletion
-        if (result.isConfirmed) {
-          // Show a loading animation or screen
-          showLoading();
-          // Run the deleteAForm function from Google Script
-          google.script.run
-            .withSuccessHandler((data) => {
-              // If the returned data has items, show a success message
-              if (data?.length > 0) {
-                swalWithBootstrapButtons.fire({
-                  title: "Excellent!",
-                  html: `<P>The form has been successfully deleted</P>`,
-                  icon: "success",
-                  confirmButtonText: "Ok",
-                });
+    // // Display a confirmation dialog using swalWithBootstrapButtons
+    // swalWithBootstrapButtons
+    //   .fire({
+    //     title: "Are you sure?",
+    //     html: `
+    //         <strong>You want to delete form:</strong> <p>${title}??</p>
+    //         `,
+    //     icon: "warning",
+    //     showCancelButton: true,
+    //     confirmButtonText: "Yes, delete it!",
+    //     cancelButtonText: "No, cancel!",
+    //   })
+    //   .then((result) => {
+    //     // If the user confirms the deletion
+    //     if (result.isConfirmed) {
+    // add call de backend
+    //     }
+    //   });
 
-                // Using the resetForm function to clear the search inputs
-                resetForm(
-                  inputSearchIdDepartament,
-                  inputSearchId,
-                  inputSearchDescription
-                );
-                // Change Object global forms for new object send to BD
-                objectForms = data;
-                // Reload table forms
-                createDataTable(objectForms);
-              } else {
-                // Hide the loading animation or screen and show an error message
-                hiddenLoading();
-                swalWithBootstrapButtons.fire({
-                  title: "Error!",
-                  html: `<P>There was an error deleting the form</P>`,
-                  icon: "error",
-                  confirmButtonText: "Ok",
-                });
-              }
-            })
-            .deleteAForm(idMysql);
+    // Show a loading animation or screen
+    showLoading();
+    // Run the deleteAForm function from Google Script
+    google.script.run
+      .withSuccessHandler((data) => {
+        // If the returned data has items, show a success message
+        if (data?.length > 0) {
+          // swalWithBootstrapButtons.fire({
+          //   title: "Excellent!",
+          //   html: `<P>The form has been successfully deleted</P>`,
+          //   icon: "success",
+          //   confirmButtonText: "Ok",
+          // });
+          // Using the resetForm function to clear the search inputs
+
+          resetForm(
+            inputSearchIdDepartament,
+            inputSearchId,
+            inputSearchDescription
+          );
+          // Change Object global forms for new object send to BD
+          objectForms = data;
+          // Reload table forms
+          createDataTable(objectForms);
+        } else {
+          // Hide the loading animation or screen and show an error message
+          hiddenLoading();
+          swalWithBootstrapButtons.fire({
+            title: "Error!",
+            html: `<P>There was an error deleting the form</P>`,
+            icon: "error",
+            confirmButtonText: "Ok",
+          });
         }
-      });
+      })
+      .deleteAForm(idMysql);
   }
 
   // Function to initialize the event listeners for delete buttons

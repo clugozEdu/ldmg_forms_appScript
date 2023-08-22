@@ -47,7 +47,7 @@ const getFormsList = () => {
     for (let form of functionsData) {
       if (
         `${form[functionsColumnIndexes.type - 1]}` === `24` &&
-        form[functionsColumnIndexes.functionID - 1] !== "" &&
+        form[functionsColumnIndexes.parentFunctionID - 1] !== "" &&
         `${form[functionsColumnIndexes.status - 1]}` !== "10"
       ) {
         let formData = {};
@@ -180,10 +180,11 @@ const addNewForm = (newFormInfos) => {
     appendDataToASheet(functionSheet, [id]);
 
     //Add the New form in MysqlDB
-    const conn = getDBCon();
+    // const conn = getDBCon();
+    const conn = Jdbc.getConnection(mainURL, username, password);
     const statement = conn.createStatement();
     statement.execute(
-      `INSERT INTO tbl_function (functionID,title,type,status,Descriptions,parentFunctionID,assignor,assignee,functiondate,priority,createdBy,dueDate,notificationChecker,flagChecker,chaseChecker) VALUES('${id}',"${title}",'${24}','${9}',"${description}","${formDepartmentID}",'${userId}','${1}','${date}','${1}','${userId}','${date}','${0}','${0}','${0}');`
+      `INSERT INTO tbl_function (functionID,title,type,status,Descriptions,parentFunctionID,assignor,assignee,functiondate,priority,createdBy,dueDate,notificationChecker,flagChecker,chaseChecker) VALUES('${id}','${title}','${24}','${9}','${description}','${formDepartmentID}','${userId}','${1}','${date}','${1}','${userId}','${date}','${0}','${0}','${0}');`
     );
 
     statement.close();
@@ -247,7 +248,8 @@ const addNewForm = (newFormInfos) => {
 //Function to add New Step...
 const addNewSteps = (newStepsInfosArray) => {
   try {
-    const conn = getDBCon();
+    // const conn = getDBCon();
+    const conn = Jdbc.getConnection(mainURL, username, password);
     const statement = conn.createStatement();
     const userId = getDataFromMySQLTable(
       "contactID",
@@ -283,7 +285,7 @@ const addNewSteps = (newStepsInfosArray) => {
       let background = newStepInfos.background;
 
       statement.execute(
-        `INSERT INTO tbl_step (stepID,functionID, orders,title,descriptions,type,Action,	Question,AnswerType,Answer1,Answer2,Answer3,Answer4,photo1,photo2,photo3,video1,video2,video3,trainee,status,checked,background) VALUES('${generatesRandomId()}',"${formID}",'${order}','${title}',"${description}","${type}",'${action}','${question}','${answerType}','${answer1}','${answer2}','${answer3}','${answer4}','${photo1}','${photo2}','${photo3}','${video1}','${video2}','${video3}','${userId}','${status}','${checked}','${background}');`
+        `INSERT INTO tbl_step (stepID,functionID, orders,title,descriptions,type,Action,	Question,AnswerType,Answer1,Answer2,Answer3,Answer4,photo1,photo2,photo3,video1,video2,video3,trainee,status,checked,background) VALUES('${generatesRandomId()}','${formID}','${order}','${title}','${description}','${type}','${action}','${question}','${answerType}','${answer1}','${answer2}','${answer3}','${answer4}','${photo1}','${photo2}','${photo3}','${video1}','${video2}','${video3}','${userId}','${status}','${checked}','${background}');`
       );
     }
 
@@ -323,10 +325,11 @@ const updateForm = (formInfos) => {
       return `the given Form SQLId is not found in the Database`;
 
     //Update the form in MysqlDB
-    const conn = getDBCon();
+    // const conn = getDBCon();
+    const conn = Jdbc.getConnection(mainURL, username, password);
     const statement = conn.createStatement();
     statement.executeUpdate(
-      `UPDATE tbl_function SET title="${title}",Descriptions="${description}",assignor='${userId}',priority='${1}',type='${24}',parentFunctionID='${formDepartmentID}' WHERE functionID='${formID}';`
+      `UPDATE tbl_function SET title='${title}',Descriptions='${description}',assignor='${userId}',priority='${1}',type='${24}',parentFunctionID='${formDepartmentID}' WHERE functionID='${formID}';`
     );
 
     statement.close();
@@ -366,7 +369,8 @@ const updateForm = (formInfos) => {
 //Function to Update a Step...
 const updateSteps = (stepInfosArray) => {
   try {
-    const conn = getDBCon();
+    // const conn = getDBCon();
+    const conn = Jdbc.getConnection(mainURL, username, password);
     const statement = conn.createStatement();
 
     for (let stepInfos of stepInfosArray) {
@@ -396,7 +400,7 @@ const updateSteps = (stepInfosArray) => {
       //if (checker === false) return `the given Step SQLId is not found in the Database`;
 
       statement.executeUpdate(
-        `UPDATE tbl_step SET title='${title}',descriptions='${description}',orders='${order}',Action='${action}',type='${type}',Question='${question}',AnswerType="${answerType}",Answer1="${answer1}",Answer2='${answer2}',Answer3='${answer3}',Answer4='${answer4}',photo1='${photo1}',photo2="${photo2}",photo3="${photo3}",status='${status}',video1='${video1}',video2='${video2}',video3='${video3}',checked='${checked}',background='${background}' WHERE stepID='${stepID}';`
+        `UPDATE tbl_step SET title='${title}',descriptions='${description}',orders='${order}',Action='${action}',type='${type}',Question='${question}',AnswerType='${answerType}',Answer1='${answer1}',Answer2='${answer2}',Answer3='${answer3}',Answer4='${answer4}',photo1='${photo1}',photo2="${photo2}",photo3="${photo3}",status='${status}',video1='${video1}',video2='${video2}',video3='${video3}',checked='${checked}',background='${background}' WHERE stepID='${stepID}';`
       );
     }
 
@@ -422,7 +426,8 @@ const deleteAForm = (mySQLFormId) => {
       return `the given Form SQLId is not found in the Database`;
 
     //Update the form in MysqlDB
-    const conn = getDBCon();
+    // const conn = getDBCon();
+    const conn = Jdbc.getConnection(mainURL, username, password);
     const statement = conn.createStatement();
     statement.executeUpdate(
       `UPDATE tbl_function SET status="${10}" WHERE functionID='${mySQLFormId}';`
@@ -450,7 +455,8 @@ const deleteAForm = (mySQLFormId) => {
 //Function to set A form as deleted...
 const deleteSteps = (mySQLstepIdsArray) => {
   try {
-    const conn = getDBCon();
+    // const conn = getDBCon();
+    const conn = Jdbc.getConnection(mainURL, username, password);
     const statement = conn.createStatement();
 
     for (let mySQLstepId of mySQLstepIdsArray) {
@@ -463,7 +469,7 @@ const deleteSteps = (mySQLstepIdsArray) => {
         return `the given Step SQLId is not found in the Database`;
 
       statement.executeUpdate(
-        `UPDATE tbl_step SET status="${5}" WHERE stepID='${mySQLstepId}';`
+        `UPDATE tbl_step SET status='${5}' WHERE stepID='${mySQLstepId}';`
       );
     }
 
@@ -480,13 +486,14 @@ const deleteSteps = (mySQLstepIdsArray) => {
 //Function to set a form's Steps Order in the DB...
 const stepsOrderMaker = (stepsOrderArray) => {
   try {
-    const conn = getDBCon();
+    // const conn = getDBCon();
+    const conn = Jdbc.getConnection(mainURL, username, password);
     const statement = conn.createStatement();
 
     for (let data of stepsOrderArray) {
       Utilities.sleep(10000);
       statement.executeUpdate(
-        `UPDATE tbl_step SET orders="${data["stepCode"]}" WHERE stepID='${data["idStepMySQL"]}';`
+        `UPDATE tbl_step SET orders='${data["stepCode"]}' WHERE stepID='${data["idStepMySQL"]}';`
       );
     }
 

@@ -37,13 +37,13 @@
               hiddenLoading();
               // init all events for add new step
               setDataInTable(object);
-              swalWithBootstrapButtons.fire({
-                title: "Information!",
-                html: `<P>Form does not contain steps</P>`,
-                icon: "warning",
-                backdrop: false,
-                confirmButtonText: "Ok",
-              });
+              // swalWithBootstrapButtons.fire({
+              //   title: "Information!",
+              //   html: `<P>Form does not contain steps</P>`,
+              //   icon: "warning",
+              //   backdrop: false,
+              //   confirmButtonText: "Ok",
+              // });
             }
           })
           .withFailureHandler((error) => {

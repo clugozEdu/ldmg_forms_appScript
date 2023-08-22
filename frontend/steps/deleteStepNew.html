@@ -15,27 +15,32 @@
       (item) => item.originalCode !== codeOriginal
     );
 
-    // Display a confirmation dialog using swalWithBootstrapButtons
-    swalWithBootstrapButtons
-      .fire({
-        title: "Are you sure?",
-        html: `
-            <strong>You want to delete form:</strong> <p>${title}??</p>
-            `,
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Yes, delete it!",
-        cancelButtonText: "No, cancel!",
-      })
-      .then((result) => {
-        // If the user confirms the deletion
-        if (result.isConfirmed) {
-          // Remove the row from the DOM
-          row.remove();
-          // Update the step codes after deletion
-          updateStepCodes();
-        }
-      });
+    // Remove the row from the DOM
+    row.remove();
+    // Update the step codes after deletion
+    updateStepCodes();
+
+    // // Display a confirmation dialog using swalWithBootstrapButtons
+    // swalWithBootstrapButtons
+    //   .fire({
+    //     title: "Are you sure?",
+    //     html: `
+    //         <strong>You want to delete form:</strong> <p>${title}??</p>
+    //         `,
+    //     icon: "warning",
+    //     showCancelButton: true,
+    //     confirmButtonText: "Yes, delete it!",
+    //     cancelButtonText: "No, cancel!",
+    //   })
+    //   .then((result) => {
+    //     // If the user confirms the deletion
+    //     if (result.isConfirmed) {
+    //       // Remove the row from the DOM
+    //       row.remove();
+    //       // Update the step codes after deletion
+    //       updateStepCodes();
+    //     }
+    //   });
   }
 
   // Function to initialize the event listeners for delete buttons

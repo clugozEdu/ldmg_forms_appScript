@@ -31,6 +31,16 @@
         // create table with forms
         createDataTable(object);
       })
+      .withFailureHandler((error) => {
+        hiddenLoading();
+        //alert error
+        swalWithBootstrapButtons.fire({
+          title: "Error!",
+          html: `<P>${error} Reload again</P>`,
+          icon: "error",
+          confirmButtonText: "Ok",
+        });
+      })
       .getFormsList();
 
     // Handler for get departments list

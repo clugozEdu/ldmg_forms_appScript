@@ -29,12 +29,12 @@
         .withSuccessHandler((data) => {
           // If the returned data has items, show a success message
           if (data?.length > 0) {
-            swalWithBootstrapButtons.fire({
-              title: "Excellent!",
-              html: `<P>The form has been successfully saved</P>`,
-              icon: "success",
-              confirmButtonText: "Ok",
-            });
+            // swalWithBootstrapButtons.fire({
+            //   title: "Excellent!",
+            //   html: `<P>The form has been successfully saved</P>`,
+            //   icon: "success",
+            //   confirmButtonText: "Ok",
+            // });
 
             // set objetStep in new data
             objectStep = data;
@@ -50,7 +50,7 @@
             hiddenLoading();
             swalWithBootstrapButtons.fire({
               title: "Error!",
-              html: `<P>There was an error saving the form</P>`,
+              html: `<P>There was an error saving the steps</P>`,
               icon: "error",
               confirmButtonText: "Ok",
             });
