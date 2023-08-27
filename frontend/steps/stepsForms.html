@@ -101,7 +101,9 @@
         const stepCode = createTableCell("10%", steps.stepCode);
         //stepCode.dataset.idMysql = steps.mySQLId;
 
-        const stepTitle = createTableCell("30%", steps.stepTitle);
+        const stepTitle = createTableCell("30px", steps.stepTitle);
+        stepTitle.style.wordWrap = "break-word";
+
         const formActionsCell = createTableCell("15%");
 
         const maxDescriptionLength = 100;

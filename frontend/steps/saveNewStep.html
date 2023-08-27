@@ -60,7 +60,8 @@
 
     // Create table cells for the new step's data
     const rowStepCode = createTableCell("10%", newStepObject.stepCode);
-    const rowStepTitle = createTableCell("30%", newStepObject.title);
+    const rowStepTitle = createTableCell("30px", newStepObject.title);
+    rowStepTitle.style.wordWrap = "break-word";
     const rowFormActionsCell = createTableCell("15%");
 
     // Truncate the description to a maximum length
